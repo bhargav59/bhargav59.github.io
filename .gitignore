@@ -32,6 +32,7 @@ pids
 .devcontainer/
 
 .spark-workbench-id
+.github/copilot-instructions.md
 .clinerules/byterover-rules.md
 .kilocode/rules/byterover-rules.md
 .roo/rules/byterover-rules.md
