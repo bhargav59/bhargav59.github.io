@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 type CertificateEntry = {
   id: string
@@ -155,17 +156,20 @@ function App() {
           >
             BKS
           </motion.h1>
-          <motion.div 
-            className="hidden md:flex gap-6"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
-            <button onClick={() => scrollToSection('about')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">About</button>
-            <button onClick={() => scrollToSection('skills')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Skills</button>
-            <button onClick={() => scrollToSection('certifications')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Certifications</button>
-            <button onClick={() => scrollToSection('contact')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Contact</button>
-          </motion.div>
+          <div className="flex items-center gap-4">
+            <motion.div 
+              className="hidden md:flex gap-6"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <button onClick={() => scrollToSection('about')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">About</button>
+              <button onClick={() => scrollToSection('skills')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Skills</button>
+              <button onClick={() => scrollToSection('certifications')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Certifications</button>
+              <button onClick={() => scrollToSection('contact')} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Contact</button>
+            </motion.div>
+            <ThemeToggle />
+          </div>
         </nav>
       </header>
 
