@@ -1,19 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bhargav Kumar Saha - Portfolio</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="/assets/index-DYcnBxbK.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-CE3A2ukO.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bhargav Kumar Saha - Portfolio</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --accent: #2563eb;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1024px;
+      margin: 0 auto;
+      padding: 2rem 1rem 4rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    h1, h2, h3 { margin: 0 0 0.5rem; line-height: 1.3; }
+    h1 { font-size: 2rem; }
+    h2 { font-size: 1.25rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-bottom: 0.8rem; }
+    h3 { font-size: 1rem; }
+    p { margin: 0.25rem 0 0.75rem; }
+    ul { margin: 0.25rem 0 0.75rem 1.2rem; padding: 0; }
+    li { margin: 0.3rem 0; }
+    .muted { color: var(--muted); }
+    .meta, .links { display: flex; flex-wrap: wrap; gap: 0.65rem 1rem; }
+    .links a { color: var(--accent); text-decoration: none; }
+    .links a:hover { text-decoration: underline; }
+    .grid {
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .tagline { font-weight: 600; color: var(--accent); }
+  </style>
 </head>
-
 <body>
-    <div id="root"></div>
-</body>
+  <main class="container">
+    <section class="card">
+      <h1>Bhargav Kumar Saha</h1>
+      <div class="meta muted">
+        <span>Bengaluru, Karnataka, India</span>
+      </div>
+      <div class="links">
+        <a href="mailto:bhargavsah2026@gmail.com">bhargavsah2026@gmail.com</a>
+        <a href="https://linkedin.com/in/bhargavsah" target="_blank" rel="noopener noreferrer">linkedin.com/in/bhargavsah</a>
+        <a href="https://github.com/bhargav59" target="_blank" rel="noopener noreferrer">github.com/bhargav59</a>
+      </div>
+      <p class="tagline">Cloud Engineer • AWS Practitioner • Automation-First Builder</p>
+      <p>
+        Motivated Cloud Engineer and AWS practitioner with hands-on experience designing, deploying, and automating cloud-native
+        infrastructure at scale. Proven ability to architect serverless applications, build CI/CD workflows, manage secure multi-tier
+        AWS environments, and optimize infrastructure for high availability and cost efficiency.
+      </p>
+    </section>
 
+    <section class="card">
+      <h2>Technical Skills</h2>
+      <div class="grid">
+        <div>
+          <h3>AWS Core Services</h3>
+          <p>EC2, S3, VPC, RDS, DynamoDB, Lambda, API Gateway, ALB, EBS, IAM, CloudWatch, Elastic Beanstalk</p>
+        </div>
+        <div>
+          <h3>Serverless & Compute</h3>
+          <p>AWS Lambda, Amazon API Gateway, event-driven architecture, serverless application design</p>
+        </div>
+        <div>
+          <h3>Networking & Security</h3>
+          <p>VPC design, public/private subnets, Security Groups, NACLs, Load Balancers, IAM roles & policies, least-privilege access control</p>
+        </div>
+        <div>
+          <h3>Infrastructure & Automation</h3>
+          <p>Shell scripting (Bash), Python, Git, CI/CD fundamentals, Docker fundamentals, Ansible basics, infrastructure-as-code principles</p>
+        </div>
+        <div>
+          <h3>Databases & OS</h3>
+          <p>MySQL, RDS, DynamoDB, backup/recovery, Linux (Ubuntu, Amazon Linux, CentOS), Windows Server</p>
+        </div>
+        <div>
+          <h3>Monitoring & Core Competencies</h3>
+          <p>CloudWatch metrics/alarms, diagnostics, alerting pipelines, cloud architecture, cost optimization, troubleshooting, collaboration</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Education</h2>
+      <p><strong>Bachelor of Engineering in Computer Science</strong> (Expected 2026)</p>
+      <p class="muted">Visvesvaraya Technological University (VTU), Karnataka, India</p>
+      <p>Relevant coursework: DSA, Computer Networks, Operating Systems, DBMS, OOP, Distributed Systems</p>
+    </section>
+
+    <section class="card">
+      <h2>Professional Training & Experience</h2>
+      <h3>Cloud Engineering Intern — HEPro (HEProAI / HEPro+)</h3>
+      <p class="muted">Great Leaders Institute Pvt Ltd. • Nov 2025 – Jan 2026 • Remote, India</p>
+      <ul>
+        <li>Designed and implemented production-grade serverless AWS architecture using Lambda, API Gateway, S3, and CloudWatch.</li>
+        <li>Developed event-driven backend logic in Python and integrated REST APIs via Amazon API Gateway.</li>
+        <li>Configured secure and cost-efficient S3 storage with bucket policies and lifecycle rules.</li>
+        <li>Enforced IAM least-privilege access control and delivered end-to-end full-stack serverless app ownership.</li>
+      </ul>
+
+      <h3>AWS Re/Start Program — On-the-Job Training</h3>
+      <p class="muted">Magic Bus India Foundation • May 2025 – July 2025 • 210-hour program</p>
+      <ul>
+        <li>Completed intensive practical training across AWS core services and cloud infrastructure operations.</li>
+        <li>Built Bash/Python automation for AWS resource lifecycle management, reducing manual effort by 80%.</li>
+        <li>Validated end-to-end deployment workflows using CI/CD and observability fundamentals.</li>
+      </ul>
+
+      <h3>AWS APAC Solutions Architecture Virtual Experience</h3>
+      <p class="muted">Forage • November 2025</p>
+      <ul>
+        <li>Designed scalable, fault-tolerant hosting architecture using AWS Elastic Beanstalk.</li>
+        <li>Produced architecture documentation with service rationale, scaling strategy, and cost estimates.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Cloud Infrastructure Projects</h2>
+      <h3>Automated Cloud Infrastructure Deployment Pipeline (AWS • Python • Bash • IAM)</h3>
+      <ul>
+        <li>Built fully automated EC2 deployment/provisioning pipeline, reducing manual provisioning time by 80%.</li>
+        <li>Implemented scripts for instance lifecycle management, EBS provisioning, and dynamic security group rules.</li>
+        <li>Added CloudWatch-based monitoring/alerting for CPU, memory, and storage thresholds.</li>
+      </ul>
+
+      <h3>Scalable Multi-Tier Application Architecture (AWS VPC • ALB • RDS • EC2)</h3>
+      <ul>
+        <li>Architected highly available 2-tier AWS infrastructure with custom VPC and segregated subnet layers.</li>
+        <li>Configured ALB health checks and routing for 99.9% uptime and automatic failover behavior.</li>
+        <li>Integrated RDS MySQL with daily backups, point-in-time recovery, and defense-in-depth security controls.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Certifications & Continuous Learning</h2>
+      <ul>
+        <li>GitHub Foundations — DataCamp (9 hours, August 2025)</li>
+        <li>Actively pursuing: AWS Certified Cloud Practitioner; AWS Certified Solutions Architect – Associate</li>
+        <li>Self-study: Terraform, Kubernetes fundamentals, Ansible automation, Docker containerization</li>
+        <li>Exploring: AWS DevOps Engineer path, cloud cost optimization, multi-region architecture patterns</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Key Strengths</h2>
+      <ul>
+        <li>AWS hands-on practitioner with serverless and multi-tier deployment experience</li>
+        <li>Built 10+ scripted cloud workflows to reduce operational overhead</li>
+        <li>Security-minded approach with IAM least-privilege and defense-in-depth practices</li>
+        <li>Rapid learner focused on certifications and infrastructure-as-code ecosystem growth</li>
+      </ul>
+      <p class="muted"><strong>References available upon request.</strong></p>
+    </section>
+  </main>
+</body>
 </html>
