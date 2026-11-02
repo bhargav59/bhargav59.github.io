@@ -262,50 +262,50 @@ export default function App() {
   const activeNodes = activeArchTab === 'vpc' ? vpcNodes : serverlessNodes
   const currentNode = activeNodes.find(n => n.id === selectedNodeId) || activeNodes[0]
 
-  // Projects list
+  // Projects list from latest resume
   const projects = [
+    {
+      id: 'serverless-task',
+      category: 'serverless',
+      title: 'Serverless Cloud Task Management Platform',
+      badge: 'AWS S3 • Cognito • Lambda • DynamoDB',
+      metric: 'Zero Server Overhead',
+      metricColor: 'text-purple-400',
+      description: 'Architected a fully serverless application utilizing Amazon S3 for static frontend hosting and AWS Cognito for secure user authentication, completely eliminating server management overhead. Developed scalable, event-driven RESTful APIs using AWS Lambda and Amazon API Gateway to process backend CRUD operations, backed by a performant Amazon DynamoDB NoSQL schema secured via IAM least-privilege policies.',
+      tech: ['Amazon S3', 'AWS Cognito', 'AWS Lambda', 'Amazon API Gateway', 'Amazon DynamoDB', 'IAM Policies'],
+      link: 'https://github.com/bhargav59'
+    },
+    {
+      id: 'hepro-serverless',
+      category: 'serverless',
+      title: 'HEPro AI Production Serverless Web Platform',
+      badge: 'AWS Lambda • API Gateway • Python • S3',
+      metric: 'End-to-End Delivery',
+      metricColor: 'text-emerald-400',
+      description: 'Designed and implemented production-grade serverless web application architecture on AWS at HEPro (AI Product Development). Built event-driven Python backend on Lambda with RESTful APIs via API Gateway, configured S3 asset management with lifecycle rules, enforced least-privilege IAM policies, and delivered complete full-stack app (HTML/CSS/JS frontend + Python backend) end-to-end.',
+      tech: ['Python', 'AWS Lambda', 'Amazon API Gateway', 'Amazon S3', 'AWS IAM', 'AWS CloudWatch'],
+      link: '/documents/hepro_certificate.pdf'
+    },
     {
       id: 'ec2-pipeline',
       category: 'aws',
       title: 'Automated Cloud Infrastructure Pipeline',
-      badge: 'AWS • Bash • Python • IAM',
-      metric: '80% Faster Provisioning',
-      metricColor: 'text-emerald-400',
-      description: 'Engineered automated EC2 deployment workflows using Bash and Python scripts, slashing manual resource provisioning time by 80%. Implemented automated instance lifecycle management, EBS volume mounting, and CloudWatch utilization health monitoring daemons.',
-      tech: ['AWS EC2', 'Bash', 'Python Boto3', 'IAM Roles', 'CloudWatch', 'Cron Daemons'],
+      badge: 'AWS EC2 • Bash • Python • IAM',
+      metric: '80% Manual Effort Cut',
+      metricColor: 'text-sky-400',
+      description: 'Developed Bash and Python automation scripts for AWS resource lifecycle management (EC2 provisioning, storage configuration, security group rules), reducing manual operational effort by 80%. Built and validated end-to-end deployment workflows under guidance of AWS technical consultants, applying CI/CD fundamentals and CloudWatch system health monitoring.',
+      tech: ['AWS EC2', 'Shell Scripting (Bash)', 'Python', 'IAM Roles', 'AWS CloudWatch', 'Storage Automation'],
       link: 'https://github.com/bhargav59'
     },
     {
       id: 'multi-tier-vpc',
       category: 'aws',
       title: 'Scalable Multi-Tier VPC Architecture',
-      badge: 'AWS VPC • ALB • RDS Multi-AZ',
-      metric: '99.9% Uptime Design',
-      metricColor: 'text-sky-400',
-      description: 'Architected high-availability 2-tier infrastructure with custom public/private subnet topology across multiple Availability Zones. Placed Application Load Balancers with SSL termination for traffic distribution, paired with Multi-AZ RDS MySQL instances with automated snapshot backups.',
+      badge: 'AWS VPC • ALB • Multi-AZ RDS',
+      metric: '99.9% High Availability',
+      metricColor: 'text-cyan-400',
+      description: 'Designed scalable, fault-tolerant hosting infrastructure applying cloud best practices for auto-scaling and high availability. Configured custom VPC public and private subnet topologies, Application Load Balancers for traffic distribution, and isolated RDS Multi-AZ databases with automated backup & recovery and defense-in-depth security groups.',
       tech: ['AWS VPC', 'Subnet Masking', 'ALB Load Balancer', 'RDS MySQL Multi-AZ', 'Security Groups'],
-      link: 'https://github.com/bhargav59'
-    },
-    {
-      id: 'hepro-serverless',
-      category: 'serverless',
-      title: 'HEPro AI Serverless Microservices Platform',
-      badge: 'AWS Lambda • API Gateway • DynamoDB',
-      metric: 'Zero Idle Compute Cost',
-      metricColor: 'text-purple-400',
-      description: 'Developed during my 2-month Cloud Engineering Internship at HEPro. Built serverless cloud-native microservices powering AI mentoring tools, providing instantaneous request auto-scaling, fine-grained IAM security policies, and DynamoDB NoSQL data storage.',
-      tech: ['AWS Lambda', 'Amazon API Gateway', 'DynamoDB', 'Amazon S3', 'Serverless', 'HEPro AI'],
-      link: '/documents/hepro_certificate.pdf'
-    },
-    {
-      id: 'gitops-cicd',
-      category: 'devops',
-      title: 'GitOps Continuous Delivery Pipeline',
-      badge: 'GitHub Actions • Docker • Linux',
-      metric: 'Automated PR Gates',
-      metricColor: 'text-amber-400',
-      description: 'Designed and deployed automated CI/CD pipeline triggers on GitHub Actions. Performs unit testing, security linting, multi-stage minimal Docker container builds, and versioned artifact deployment with zero configuration drift.',
-      tech: ['GitHub Actions', 'Docker Containers', 'Linux CLI', 'Container Registry', 'CI/CD Automation'],
       link: 'https://github.com/bhargav59'
     }
   ]
@@ -528,25 +528,25 @@ export default function App() {
         <section id="about" className="scroll-mt-20 space-y-6">
           <div className="flex items-center gap-2 text-xs font-mono text-sky-400 uppercase tracking-widest">
             <Building2 className="w-3.5 h-3.5" />
-            <span>Profile & Background</span>
+            <span>Profile & Engineering Philosophy</span>
           </div>
           
           <div className="grid md:grid-cols-3 gap-6">
             <div className="md:col-span-2 linear-card p-6 rounded-2xl space-y-4 text-sm text-muted-foreground leading-relaxed">
               <h2 className="text-xl font-bold text-foreground tracking-tight">
-                Software craft meets production infrastructure.
+                Architecting resilient cloud solutions that power modern applications.
               </h2>
               <p>
-                Currently completing my Computer Science Bachelor of Engineering at <strong className="text-foreground">KNS Institute of Technology (VTU)</strong> in Bengaluru. I combine a deep curiosity for operating systems with battle-tested AWS cloud design.
+                Motivated Cloud Engineer and AWS practitioner with hands-on experience designing, deploying, and automating cloud-native infrastructure at scale. Proven ability to architect serverless applications, build CI/CD workflows, manage secure multi-tier AWS environments, and optimize infrastructure for high availability and cost efficiency.
               </p>
               <p>
-                In 2025, I completed the rigorous <strong className="text-foreground">210-hour AWS Re/Start program</strong> with Magic Bus India Foundation, focusing on core infrastructure automation. Most recently (Nov 2025 – Jan 2026), I completed a <strong className="text-foreground">Cloud Engineering Internship at HEPro</strong>, developing serverless AWS architectures for AI products.
+                Strong foundation in Linux, Python scripting, infrastructure-as-code principles, and networking. Following 210 hours of structured AWS Re/Start training, I served as a <strong className="text-foreground">Cloud Engineering Intern at HEPro</strong> (AI Product Development), delivering full-stack serverless architectures on AWS end-to-end.
               </p>
               <div className="pt-2 flex flex-wrap gap-2 text-xs font-mono">
                 <span className="px-2.5 py-1 rounded bg-secondary text-foreground border border-border/80">AWS Architecture</span>
                 <span className="px-2.5 py-1 rounded bg-secondary text-foreground border border-border/80">Serverless Microservices</span>
-                <span className="px-2.5 py-1 rounded bg-secondary text-foreground border border-border/80">Docker & Containers</span>
-                <span className="px-2.5 py-1 rounded bg-secondary text-foreground border border-border/80">Linux & Shell Automation</span>
+                <span className="px-2.5 py-1 rounded bg-secondary text-foreground border border-border/80">IAM Least-Privilege</span>
+                <span className="px-2.5 py-1 rounded bg-secondary text-foreground border border-border/80">Python & Bash Automation</span>
               </div>
             </div>
 
@@ -557,28 +557,69 @@ export default function App() {
                 <div className="space-y-3 text-xs">
                   <div>
                     <span className="text-muted-foreground block">Education</span>
-                    <span className="font-semibold text-foreground">B.E. Computer Science (VTU, 2026)</span>
+                    <span className="font-semibold text-foreground">B.E. Computer Science (VTU, 2022–2026)</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground block">Primary Location</span>
+                    <span className="text-muted-foreground block">Location</span>
                     <span className="font-semibold text-foreground">Bengaluru, Karnataka, India</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground block">Recent Internship</span>
+                    <span className="text-muted-foreground block">Recent Role</span>
                     <span className="font-semibold text-emerald-400">Cloud Engineering Intern (HEPro)</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground block">Verified Live Domain</span>
-                    <a href="https://bhargav-sah.me" target="_blank" rel="noreferrer" className="text-sky-400 hover:underline">
-                      bhargav-sah.me
-                    </a>
+                    <span className="text-muted-foreground block">Active Credentials</span>
+                    <span className="font-semibold text-sky-400">AWS Re/Start OJT • GitHub Foundations</span>
                   </div>
                 </div>
               </div>
 
               <div className="pt-3 border-t border-border/80 text-[11px] text-muted-foreground font-mono">
-                Available for on-site & remote roles.
+                Available for on-site & remote engagements.
               </div>
+            </div>
+          </div>
+
+          {/* Key Strengths Grid (from latest resume) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
+            <div className="linear-card p-4 rounded-xl space-y-1.5">
+              <div className="flex items-center gap-2 text-sky-400 font-bold text-xs uppercase font-mono">
+                <Cloud className="w-4 h-4" />
+                <span>AWS Hands-On</span>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Deployed real serverless and multi-tier production infrastructure on AWS with zero single point of failure.
+              </p>
+            </div>
+
+            <div className="linear-card p-4 rounded-xl space-y-1.5">
+              <div className="flex items-center gap-2 text-emerald-400 font-bold text-xs uppercase font-mono">
+                <Zap className="w-4 h-4" />
+                <span>Automation-First</span>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Built 10+ scripted cloud workflows in Python and Bash, reducing manual provisioning and ops effort by 80%.
+              </p>
+            </div>
+
+            <div className="linear-card p-4 rounded-xl space-y-1.5">
+              <div className="flex items-center gap-2 text-purple-400 font-bold text-xs uppercase font-mono">
+                <Shield className="w-4 h-4" />
+                <span>Security-Minded</span>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Consistently applies IAM least-privilege, defense-in-depth security groups, and encryption at rest/transit.
+              </p>
+            </div>
+
+            <div className="linear-card p-4 rounded-xl space-y-1.5">
+              <div className="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase font-mono">
+                <Sparkles className="w-4 h-4" />
+                <span>Rapid Learner</span>
+              </div>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Actively pursuing AWS Solutions Architect & Cloud Practitioner certifications while mastering Terraform & K8s.
+              </p>
             </div>
           </div>
         </section>
@@ -1122,6 +1163,41 @@ export default function App() {
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Continuous Learning & Active Pursuits (from latest resume) */}
+          <div className="linear-card p-5 rounded-2xl border-white/10 space-y-3">
+            <div className="flex items-center justify-between border-b border-border pb-2.5">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                <h3 className="text-xs font-mono font-semibold uppercase tracking-wider text-foreground">
+                  Continuous Learning & Active Roadmap
+                </h3>
+              </div>
+              <span className="text-[11px] font-mono text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded">
+                In Progress 2026
+              </span>
+            </div>
+
+            <div className="grid sm:grid-cols-3 gap-4 text-xs">
+              <div className="space-y-1">
+                <span className="text-muted-foreground font-mono block text-[11px] uppercase">Actively Pursuing Certifications</span>
+                <p className="font-semibold text-foreground">AWS Certified Solutions Architect – Associate</p>
+                <p className="text-muted-foreground">AWS Certified Cloud Practitioner</p>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-muted-foreground font-mono block text-[11px] uppercase">Self-Study & Tooling</span>
+                <p className="font-semibold text-foreground">Terraform (Infrastructure as Code)</p>
+                <p className="text-muted-foreground">Kubernetes Fundamentals • Ansible • Docker</p>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-muted-foreground font-mono block text-[11px] uppercase">Specialization Roadmap</span>
+                <p className="font-semibold text-foreground">AWS DevOps Engineer Professional Path</p>
+                <p className="text-muted-foreground">Cloud Cost Optimization • Multi-Region Architectures</p>
+              </div>
+            </div>
           </div>
         </section>
 
