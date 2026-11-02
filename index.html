@@ -1,19 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bhargav Kumar Saha - Portfolio</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="/assets/index-Bw4-hHpV.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-6AWtGERZ.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Primary Meta Tags -->
+  <title>Bhargav Kumar Saha | Cloud & DevOps Engineer</title>
+  <meta name="title" content="Bhargav Kumar Saha | Cloud & DevOps Engineer" />
+  <meta name="description" content="Portfolio of Bhargav Kumar Saha — Cloud & DevOps Engineer specializing in AWS architecture, serverless systems, Linux, Python, and CI/CD automation." />
+  <meta name="keywords" content="Bhargav Kumar Saha, Cloud Engineer, DevOps, AWS, Terraform, Docker, Kubernetes, CI/CD, Bengaluru, Solutions Architect" />
+  <meta name="author" content="Bhargav Kumar Saha" />
+  <meta name="theme-color" content="#090d16" />
+
+  <!-- Open Graph / Facebook / LinkedIn -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://bhargav-sah.me/" />
+  <meta property="og:title" content="Bhargav Kumar Saha | Cloud & DevOps Engineer" />
+  <meta property="og:description" content="Explore AWS cloud architectures, automation pipelines, and verified credentials by Bhargav Kumar Saha." />
+  <meta property="og:image" content="https://bhargav-sah.me/favicon.svg" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://bhargav-sah.me/" />
+  <meta property="twitter:title" content="Bhargav Kumar Saha | Cloud & DevOps Engineer" />
+  <meta property="twitter:description" content="Explore AWS cloud architectures, automation pipelines, and verified credentials by Bhargav Kumar Saha." />
+  <meta property="twitter:image" content="https://bhargav-sah.me/favicon.svg" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Prevent theme flicker -->
+  <script>
+    (function() {
+      try {
+        const storedTheme = localStorage.getItem('portfolio-theme');
+        if (storedTheme === 'light') {
+          document.documentElement.classList.remove('dark');
+        } else {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 
-<body>
-    <div id="root"></div>
+<body class="bg-background text-foreground antialiased selection:bg-cyan-500/30 selection:text-cyan-200">
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
 
 </html>
