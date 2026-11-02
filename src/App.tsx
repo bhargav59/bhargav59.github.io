@@ -26,10 +26,18 @@ import {
   Award,
   Calendar,
   Building2,
-  Boxes
+  Boxes,
+  Zap,
+  Globe,
+  Radio,
+  Lock,
+  ArrowRight,
+  Sliders,
+  Sparkles,
+  Command
 } from 'lucide-react'
 
-// Clean Brand Icons
+// Brand Icons
 function GithubIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
     <svg className={className} fill="currentColor" viewBox="0 0 24 24">
@@ -46,10 +54,20 @@ function LinkedinIcon({ className = "w-4 h-4" }: { className?: string }) {
   )
 }
 
-// Terminal Command Definition
 interface CommandOutput {
   command: string
   output: string | React.ReactNode
+}
+
+interface TopologyNode {
+  id: string
+  label: string
+  tier: string
+  service: string
+  details: string
+  ports: string
+  cidr: string
+  sgRule: string
 }
 
 export default function App() {
@@ -57,7 +75,12 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [copiedEmail, setCopiedEmail] = useState(false)
   const [selectedCertModal, setSelectedCertModal] = useState<string | null>(null)
-  
+  const [projectFilter, setProjectFilter] = useState<'all' | 'aws' | 'devops' | 'serverless'>('all')
+
+  // Architecture Blueprint State
+  const [activeArchTab, setActiveArchTab] = useState<'vpc' | 'serverless' | 'cicd'>('vpc')
+  const [selectedNodeId, setSelectedNodeId] = useState<string>('alb')
+
   // Terminal state
   const [terminalInput, setTerminalInput] = useState('')
   const [terminalHistory, setTerminalHistory] = useState<CommandOutput[]>([
@@ -72,12 +95,9 @@ export default function App() {
     },
     {
       command: 'terraform plan -compact-warnings',
-      output: '[OK] Infrastructure matches desired state. 0 to add, 0 to change, 0 to destroy. Status: Resilient.'
+      output: '[OK] Plan: 0 to add, 0 to change, 0 to destroy. Infrastructure matches desired state.'
     }
   ])
-
-  // Active architecture tab state
-  const [activeArchTab, setActiveArchTab] = useState<'vpc' | 'serverless' | 'cicd'>('vpc')
 
   useEffect(() => {
     const saved = localStorage.getItem('portfolio-theme') as 'dark' | 'light' | null
@@ -119,36 +139,36 @@ export default function App() {
       case 'help':
         out = (
           <div className="space-y-1 text-slate-300">
-            <p>Available commands:</p>
-            <p><span className="text-cyan-400">whoami</span> - Display engineer profile summary</p>
-            <p><span className="text-cyan-400">aws status</span> - Check mock AWS services status</p>
-            <p><span className="text-cyan-400">skills</span> - List primary technical stack</p>
-            <p><span className="text-cyan-400">projects</span> - List flagship cloud projects</p>
-            <p><span className="text-cyan-400">contact</span> - Get direct contact information</p>
-            <p><span className="text-cyan-400">clear</span> - Clear terminal session</p>
+            <p className="text-slate-400 font-semibold">Available commands:</p>
+            <p><span className="text-sky-400">whoami</span> - Display engineer profile summary</p>
+            <p><span className="text-sky-400">aws status</span> - Check regional AWS services status</p>
+            <p><span className="text-sky-400">skills</span> - List primary technical stack</p>
+            <p><span className="text-sky-400">projects</span> - View flagship cloud architectures</p>
+            <p><span className="text-sky-400">contact</span> - Get direct email & social links</p>
+            <p><span className="text-sky-400">clear</span> - Clear terminal session</p>
           </div>
         )
         break
       case 'whoami':
-        out = 'Bhargav Kumar Saha — Cloud & DevOps Engineer based in Bengaluru. Specializing in AWS Architecture, Serverless, and IaC automation.'
+        out = 'Bhargav Kumar Saha — Cloud & DevOps Engineer based in Bengaluru, India. Specialized in AWS architecture, Linux systems, serverless platforms, and automated CI/CD pipelines.'
         break
       case 'aws status':
         out = (
           <div className="space-y-1 text-emerald-400 font-mono text-xs">
             <p>● us-east-1 (N. Virginia): Operational (Latency: 18ms)</p>
-            <p>● ap-south-1 (Mumbai): Operational (Latency: 6ms)</p>
-            <p>● Services: EC2 [Active], VPC [Healthy], ALB [Routing], RDS [Multi-AZ Synchronized]</p>
+            <p>● ap-south-1 (Mumbai): Operational (Latency: 5ms)</p>
+            <p>● VPC Peering & Route 53 DNS: Health Checks passing (100% SLA)</p>
           </div>
         )
         break
       case 'skills':
-        out = 'AWS (EC2, VPC, ALB, RDS, S3, Lambda, IAM), Docker, Kubernetes, Terraform, Python, Bash, CI/CD, Linux (Ubuntu/Amazon Linux).'
+        out = 'AWS (EC2, VPC, ALB, RDS, S3, IAM, CloudWatch, Lambda, API Gateway), Linux (Ubuntu/Amazon Linux), Bash, Python, Docker, GitHub Actions, Terraform, Ansible.'
         break
       case 'projects':
-        out = '1. Automated EC2 Deployment Pipeline (80% time cut)\n2. High-Availability Multi-Tier VPC (99.9% uptime)\n3. HEPro AI Serverless Microservices Platform'
+        out = '1. Automated EC2 Deployment Pipeline (80% provisioning time cut)\n2. High-Availability Multi-Tier VPC (99.9% uptime design)\n3. HEPro AI Serverless Microservices Platform (AWS Lambda + DynamoDB)\n4. GitOps Automated CI/CD Pipeline (GitHub Actions + Docker)'
         break
       case 'contact':
-        out = 'Email: bhargavsah2026@gmail.com | LinkedIn: /in/bhargavsah | GitHub: @bhargav59'
+        out = 'Email: bhargavsah2026@gmail.com | LinkedIn: linkedin.com/in/bhargavsah | GitHub: github.com/bhargav59'
         break
       case 'clear':
         setTerminalHistory([])
@@ -162,13 +182,143 @@ export default function App() {
     setTerminalInput('')
   }
 
+  // Topology node specifications
+  const vpcNodes: TopologyNode[] = [
+    {
+      id: 'igw',
+      label: 'Internet Gateway',
+      tier: 'Public Edge',
+      service: 'AWS IGW + Route 53',
+      details: 'Direct internet entry point with global Route 53 DNS failover routing policy.',
+      ports: '443 / 80',
+      cidr: '0.0.0.0/0',
+      sgRule: 'Inbound HTTPS/HTTP allowed from world; outbound to public subnets.'
+    },
+    {
+      id: 'alb',
+      label: 'Application Load Balancer',
+      tier: 'Public Subnets (AZ-1 / AZ-2)',
+      service: 'AWS ALB (Dual-AZ)',
+      details: 'Terminates SSL/TLS certificates and distributes traffic dynamically with path-based routing.',
+      ports: '443 (SSL) -> 8080 Target',
+      cidr: '10.0.1.0/24, 10.0.2.0/24',
+      sgRule: 'Inbound 443 from Internet -> Outbound forward to private EC2 target group.'
+    },
+    {
+      id: 'ec2',
+      label: 'Auto Scaling EC2 Cluster',
+      tier: 'Private Subnets',
+      service: 'AWS EC2 + Auto Scaling Group',
+      details: 'Isolated application compute tier. Scales between 2 and 6 instances based on CPU utilization metrics.',
+      ports: '8080 App Port',
+      cidr: '10.0.10.0/24, 10.0.20.0/24',
+      sgRule: 'Inbound 8080 restricted strictly to ALB Security Group ID. No public IPs.'
+    },
+    {
+      id: 'rds',
+      label: 'RDS MySQL Multi-AZ',
+      tier: 'Database Subnets (Isolated)',
+      service: 'AWS RDS Multi-AZ Standby',
+      details: 'Synchronous replication across secondary AZ with automated 60-second failover standby.',
+      ports: '3306 MySQL',
+      cidr: '10.0.100.0/24, 10.0.200.0/24',
+      sgRule: 'Inbound 3306 restricted solely to EC2 App Security Group. Zero internet route.'
+    }
+  ]
+
+  const serverlessNodes: TopologyNode[] = [
+    {
+      id: 'apigw',
+      label: 'HTTP API Gateway',
+      tier: 'API Ingress',
+      service: 'Amazon API Gateway v2',
+      details: 'Handles JWT authorization, throttle limits, and routing to serverless compute functions.',
+      ports: '443 HTTPS',
+      cidr: 'Managed AWS Edge',
+      sgRule: 'IAM Authorizer + CORS policy enforced.'
+    },
+    {
+      id: 'lambda',
+      label: 'Microservices Lambda',
+      tier: 'Serverless Compute',
+      service: 'AWS Lambda (Python 3.12)',
+      details: 'Stateless execution environment automatically provisioned per request. Zero idle compute charge.',
+      ports: 'Internal VPC ENI',
+      cidr: 'Private Microservice Subnets',
+      sgRule: 'Least-privilege IAM execution role scoped to specific DynamoDB table partitions.'
+    },
+    {
+      id: 'dynamo',
+      label: 'DynamoDB Storage',
+      tier: 'Data Layer',
+      service: 'Amazon DynamoDB (On-Demand)',
+      details: 'NoSQL persistent store with single-digit millisecond latency at any throughput scale.',
+      ports: 'HTTPS AWS SDK',
+      cidr: 'VPC Gateway Endpoint',
+      sgRule: 'Encrypted at rest with AWS KMS managed keys. Fine-grained IAM attribute access.'
+    }
+  ]
+
+  const activeNodes = activeArchTab === 'vpc' ? vpcNodes : serverlessNodes
+  const currentNode = activeNodes.find(n => n.id === selectedNodeId) || activeNodes[0]
+
+  // Projects list
+  const projects = [
+    {
+      id: 'ec2-pipeline',
+      category: 'aws',
+      title: 'Automated Cloud Infrastructure Pipeline',
+      badge: 'AWS • Bash • Python • IAM',
+      metric: '80% Faster Provisioning',
+      metricColor: 'text-emerald-400',
+      description: 'Engineered automated EC2 deployment workflows using Bash and Python scripts, slashing manual resource provisioning time by 80%. Implemented automated instance lifecycle management, EBS volume mounting, and CloudWatch utilization health monitoring daemons.',
+      tech: ['AWS EC2', 'Bash', 'Python Boto3', 'IAM Roles', 'CloudWatch', 'Cron Daemons'],
+      link: 'https://github.com/bhargav59'
+    },
+    {
+      id: 'multi-tier-vpc',
+      category: 'aws',
+      title: 'Scalable Multi-Tier VPC Architecture',
+      badge: 'AWS VPC • ALB • RDS Multi-AZ',
+      metric: '99.9% Uptime Design',
+      metricColor: 'text-sky-400',
+      description: 'Architected high-availability 2-tier infrastructure with custom public/private subnet topology across multiple Availability Zones. Placed Application Load Balancers with SSL termination for traffic distribution, paired with Multi-AZ RDS MySQL instances with automated snapshot backups.',
+      tech: ['AWS VPC', 'Subnet Masking', 'ALB Load Balancer', 'RDS MySQL Multi-AZ', 'Security Groups'],
+      link: 'https://github.com/bhargav59'
+    },
+    {
+      id: 'hepro-serverless',
+      category: 'serverless',
+      title: 'HEPro AI Serverless Microservices Platform',
+      badge: 'AWS Lambda • API Gateway • DynamoDB',
+      metric: 'Zero Idle Compute Cost',
+      metricColor: 'text-purple-400',
+      description: 'Developed during my 2-month Cloud Engineering Internship at HEPro. Built serverless cloud-native microservices powering AI mentoring tools, providing instantaneous request auto-scaling, fine-grained IAM security policies, and DynamoDB NoSQL data storage.',
+      tech: ['AWS Lambda', 'Amazon API Gateway', 'DynamoDB', 'Amazon S3', 'Serverless', 'HEPro AI'],
+      link: '/documents/hepro_certificate.pdf'
+    },
+    {
+      id: 'gitops-cicd',
+      category: 'devops',
+      title: 'GitOps Continuous Delivery Pipeline',
+      badge: 'GitHub Actions • Docker • Linux',
+      metric: 'Automated PR Gates',
+      metricColor: 'text-amber-400',
+      description: 'Designed and deployed automated CI/CD pipeline triggers on GitHub Actions. Performs unit testing, security linting, multi-stage minimal Docker container builds, and versioned artifact deployment with zero configuration drift.',
+      tech: ['GitHub Actions', 'Docker Containers', 'Linux CLI', 'Container Registry', 'CI/CD Automation'],
+      link: 'https://github.com/bhargav59'
+    }
+  ]
+
+  const filteredProjects = projects.filter(p => projectFilter === 'all' || p.category === projectFilter)
+
   // Certifications list
   const certs = [
     {
       id: 'hepro',
       title: 'Cloud Engineering Internship',
       issuer: 'HEPro (AI Product Development)',
-      period: 'Nov 2025 - Jan 2026',
+      period: 'Nov 2025 – Jan 2026',
       badge: 'Serverless AWS & AI Platform',
       file: '/documents/hepro_certificate.pdf',
       skills: ['AWS Lambda', 'API Gateway', 'Serverless', 'Cloud Security', 'Cost Optimization'],
@@ -178,7 +328,7 @@ export default function App() {
       id: 'magicbus',
       title: 'AWS Re/Start - Tech Fundamentals & OJT',
       issuer: 'Magic Bus India Foundation',
-      period: '210 Hours (May - July 2025)',
+      period: '210 Hours (May – July 2025)',
       badge: '210 Hours Immersion',
       file: '/documents/Bhargav_OJT.pdf',
       skills: ['AWS Core Services', 'EC2 & S3', 'VPC & RDS', 'IAM Security', 'Shell Scripting'],
@@ -189,7 +339,7 @@ export default function App() {
       title: 'AWS APAC Solutions Architecture',
       issuer: 'Forage (AWS Job Simulation)',
       period: 'Completed Nov 2025',
-      badge: 'Verified Sim: kuYMnuay5KMSu7cih',
+      badge: 'Sim ID: kuYMnuay5KMSu7cih',
       file: '/documents/completion_certificate.pdf',
       skills: ['Elastic Beanstalk', 'Scalability Analysis', 'Cost Calculations', 'Architecture Design'],
       description: 'Engineered scalable hosting infrastructure for a rapidly scaling client application experiencing high latency, drafting comprehensive functional blueprints and cost estimations.'
@@ -207,849 +357,703 @@ export default function App() {
   ]
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-200">
+    <div className="min-h-screen bg-background text-foreground selection:bg-sky-500/20 selection:text-sky-300">
       
-      {/* BACKGROUND DECORATIVE GRID */}
-      <div className="fixed inset-0 pointer-events-none cloud-grid opacity-75 z-0" />
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-sky-500/10 via-emerald-500/5 to-transparent blur-3xl pointer-events-none z-0" />
+      {/* LINEAR-STYLE SUBTLE RADIAL SPOTLIGHT */}
+      <div className="fixed inset-0 pointer-events-none radial-spotlight z-0" />
+      <div className="fixed inset-0 pointer-events-none linear-grid opacity-60 z-0" />
 
-      {/* HEADER NAVBAR */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-background/80 border-b border-border/80">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      {/* TOP NAVIGATION (Linear minimal bar) */}
+      <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/80 h-14">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
           
-          <a href="#" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 group-hover:scale-105 transition-transform">
-              <Cloud className="w-4 h-4" />
+          <a href="#" className="flex items-center gap-2.5 group">
+            <div className="w-7 h-7 rounded-md bg-white/5 border border-white/10 flex items-center justify-center text-sky-400 group-hover:border-sky-400/40 transition-colors">
+              <Cloud className="w-3.5 h-3.5" />
             </div>
-            <span className="font-mono font-bold tracking-tight text-base sm:text-lg">
-              bhargav<span className="text-sky-400">.cloud</span>
+            <span className="font-semibold text-sm tracking-tight text-foreground">
+              Bhargav Sah
             </span>
-            <span className="flex items-center gap-1.5 ml-2 text-[10px] font-mono uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-              Live
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              AWS Cloud Engineer
             </span>
           </a>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
+          {/* Desktop Links */}
+          <nav className="hidden md:flex items-center gap-6 text-xs font-medium text-muted-foreground">
             <a href="#about" className="hover:text-foreground transition-colors">About</a>
             <a href="#projects" className="hover:text-foreground transition-colors">Projects</a>
-            <a href="#architecture" className="hover:text-foreground transition-colors">Architecture</a>
+            <a href="#topology" className="hover:text-foreground transition-colors">Topology</a>
             <a href="#terminal" className="hover:text-foreground transition-colors">Terminal</a>
             <a href="#skills" className="hover:text-foreground transition-colors">Skills</a>
             <a href="#experience" className="hover:text-foreground transition-colors">Experience</a>
-            <a href="#certifications" className="hover:text-foreground transition-colors">Credentials</a>
+            <a href="#credentials" className="hover:text-foreground transition-colors">Credentials</a>
           </nav>
 
-          {/* Right Action Buttons */}
-          <div className="flex items-center gap-3">
+          {/* Action buttons */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            
             <button
               onClick={toggleTheme}
               aria-label="Toggle theme"
-              className="p-2 rounded-lg border border-border bg-card/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              className="p-1.5 rounded-md border border-border bg-card/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
             >
-              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-700" />}
+              {theme === 'dark' ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-slate-700" />}
             </button>
 
             <a
               href="/documents/bhargav_resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/30 hover:bg-sky-500/20 transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-white/5 text-foreground border border-white/10 hover:border-white/20 transition-all"
             >
-              <Download className="w-3.5 h-3.5" />
+              <Download className="w-3 h-3 text-sky-400" />
               <span>Resume</span>
             </a>
 
-            {/* Mobile Menu Toggle */}
+            {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg border border-border text-muted-foreground hover:text-foreground"
+              className="md:hidden p-1.5 rounded-md border border-border text-muted-foreground hover:text-foreground"
               aria-label="Toggle mobile menu"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Dropdown Menu */}
+        {/* Mobile Dropdown */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-b border-border bg-background/95 backdrop-blur-md px-6 py-4 space-y-3 font-medium">
+          <div className="md:hidden border-b border-border bg-background/95 backdrop-blur-xl px-6 py-4 space-y-3 text-xs font-medium">
             <a href="#about" onClick={() => setMobileMenuOpen(false)} className="block py-1 hover:text-sky-400">About</a>
             <a href="#projects" onClick={() => setMobileMenuOpen(false)} className="block py-1 hover:text-sky-400">Projects</a>
-            <a href="#architecture" onClick={() => setMobileMenuOpen(false)} className="block py-1 hover:text-sky-400">Architecture</a>
+            <a href="#topology" onClick={() => setMobileMenuOpen(false)} className="block py-1 hover:text-sky-400">Topology</a>
             <a href="#terminal" onClick={() => setMobileMenuOpen(false)} className="block py-1 hover:text-sky-400">Terminal</a>
             <a href="#skills" onClick={() => setMobileMenuOpen(false)} className="block py-1 hover:text-sky-400">Skills</a>
             <a href="#experience" onClick={() => setMobileMenuOpen(false)} className="block py-1 hover:text-sky-400">Experience</a>
-            <a href="#certifications" onClick={() => setMobileMenuOpen(false)} className="block py-1 hover:text-sky-400">Credentials</a>
+            <a href="#credentials" onClick={() => setMobileMenuOpen(false)} className="block py-1 hover:text-sky-400">Credentials</a>
             <div className="pt-2 border-t border-border flex gap-3">
               <a
                 href="/documents/bhargav_resume.pdf"
-                className="w-full text-center py-2 rounded-lg text-xs font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/30"
+                className="w-full text-center py-2 rounded-md text-xs font-medium bg-sky-500/10 text-sky-400 border border-sky-500/30"
               >
-                Download Resume
+                Download Resume PDF
               </a>
             </div>
           </div>
         )}
       </header>
 
-      <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 pt-12 sm:pt-20 pb-24 space-y-28">
+      <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 pb-28 space-y-32">
 
-        {/* HERO SECTION */}
+        {/* HERO SECTION (Linear / HashiCorp Design Language) */}
         <section className="space-y-8">
           
-          <div className="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full border border-sky-500/30 bg-sky-500/10 text-sky-400 text-xs font-mono">
-            <Activity className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-sky-500/20 bg-sky-500/5 text-sky-400 text-xs font-mono">
+            <Radio className="w-3 h-3 animate-pulse text-emerald-400" />
             <span>Open to Cloud & DevOps Roles 2026 • Bengaluru, India</span>
           </div>
 
-          <div className="space-y-4 max-w-3xl">
-            <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1]">
-              Architecting Resilient <br />
-              <span className="bg-gradient-to-r from-sky-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
-                AWS Cloud Infrastructure
+          <div className="space-y-5 max-w-3xl">
+            <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-foreground leading-[1.08]">
+              Architecting cloud systems with <br className="hidden sm:inline" />
+              <span className="bg-gradient-to-r from-sky-400 via-indigo-300 to-emerald-400 bg-clip-text text-transparent">
+                zero single point of failure.
               </span>
             </h1>
-            <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
-              Hi, I'm <strong className="text-foreground font-semibold">Bhargav Kumar Saha</strong>. 
-              DevOps and Cloud Infrastructure practitioner turning complex systems into automated, scalable, and cost-effective cloud architectures.
+            <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-2xl">
+              I'm <strong className="text-foreground font-medium">Bhargav Kumar Saha</strong>. 
+              DevOps & Cloud Engineer specializing in AWS infrastructure automation, serverless microservices, Linux internals, and automated GitOps CI/CD delivery.
             </p>
           </div>
 
-          {/* Key CTA Buttons */}
-          <div className="flex flex-wrap items-center gap-4 pt-2">
+          {/* Action Row */}
+          <div className="flex flex-wrap items-center gap-3 pt-2">
             <a
               href="#projects"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm bg-sky-500 text-slate-950 hover:bg-sky-400 shadow-glow-cyan transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-xs bg-foreground text-background hover:opacity-90 transition-opacity"
             >
               <span>Explore Projects</span>
-              <ArrowUpRight className="w-4 h-4" />
+              <ArrowRight className="w-3.5 h-3.5" />
             </a>
 
             <a
               href="/documents/bhargav_resume.pdf"
               download
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm border border-border bg-card/70 hover:bg-muted text-foreground transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-xs border border-border bg-card/60 hover:bg-muted text-foreground transition-colors"
             >
-              <Download className="w-4 h-4 text-sky-400" />
+              <Download className="w-3.5 h-3.5 text-sky-400" />
               <span>Download Resume</span>
             </a>
 
             <button
               onClick={copyEmail}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-mono border border-border bg-card/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-mono border border-border bg-card/40 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
             >
-              {copiedEmail ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+              {copiedEmail ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copiedEmail ? 'Email Copied!' : 'bhargavsah2026@gmail.com'}</span>
             </button>
           </div>
 
-          {/* Metric Highlights Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-border/80">
-            <div className="p-4 rounded-xl border border-border/60 bg-card/40">
-              <div className="text-2xl sm:text-3xl font-extrabold text-sky-400 font-mono">210+ Hrs</div>
-              <div className="text-xs text-muted-foreground mt-1">AWS Re/Start Immersion</div>
+          {/* Linear Hairline Metric Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-8 border-t border-border">
+            <div className="linear-card p-4 rounded-xl space-y-1">
+              <span className="text-[11px] font-mono text-muted-foreground">AWS Immersion</span>
+              <div className="text-2xl font-bold font-mono tracking-tight text-sky-400">210+ Hrs</div>
+              <p className="text-[11px] text-muted-foreground">OJT AWS Core Services</p>
             </div>
-            <div className="p-4 rounded-xl border border-border/60 bg-card/40">
-              <div className="text-2xl sm:text-3xl font-extrabold text-emerald-400 font-mono">80%</div>
-              <div className="text-xs text-muted-foreground mt-1">Provisioning Time Cut</div>
+
+            <div className="linear-card p-4 rounded-xl space-y-1">
+              <span className="text-[11px] font-mono text-muted-foreground">EC2 Automation</span>
+              <div className="text-2xl font-bold font-mono tracking-tight text-emerald-400">-80%</div>
+              <p className="text-[11px] text-muted-foreground">Provisioning time cut</p>
             </div>
-            <div className="p-4 rounded-xl border border-border/60 bg-card/40">
-              <div className="text-2xl sm:text-3xl font-extrabold text-cyan-400 font-mono">99.9%</div>
-              <div className="text-xs text-muted-foreground mt-1">Target VPC Uptime</div>
+
+            <div className="linear-card p-4 rounded-xl space-y-1">
+              <span className="text-[11px] font-mono text-muted-foreground">Architecture SLA</span>
+              <div className="text-2xl font-bold font-mono tracking-tight text-cyan-400">99.9%</div>
+              <p className="text-[11px] text-muted-foreground">Multi-AZ target uptime</p>
             </div>
-            <div className="p-4 rounded-xl border border-border/60 bg-card/40">
-              <div className="text-2xl sm:text-3xl font-extrabold text-purple-400 font-mono">4 Verified</div>
-              <div className="text-xs text-muted-foreground mt-1">Industry Certifications</div>
+
+            <div className="linear-card p-4 rounded-xl space-y-1">
+              <span className="text-[11px] font-mono text-muted-foreground">Verified Credentials</span>
+              <div className="text-2xl font-bold font-mono tracking-tight text-purple-400">4 Badges</div>
+              <p className="text-[11px] text-muted-foreground">HEPro, AWS OJT, Forage, Git</p>
             </div>
           </div>
         </section>
 
-        {/* ABOUT ME SECTION */}
-        <section id="about" className="scroll-mt-24 space-y-8">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20">
-              <Building2 className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">About My Engineering Journey</h2>
-              <p className="text-sm text-muted-foreground">Practical hands-on training, internships, and cloud specialization</p>
-            </div>
+        {/* ABOUT SECTION */}
+        <section id="about" className="scroll-mt-20 space-y-6">
+          <div className="flex items-center gap-2 text-xs font-mono text-sky-400 uppercase tracking-widest">
+            <Building2 className="w-3.5 h-3.5" />
+            <span>Profile & Background</span>
           </div>
-
+          
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="md:col-span-2 space-y-4 text-muted-foreground text-sm sm:text-base leading-relaxed bg-card/40 border border-border/70 p-6 rounded-2xl">
+            <div className="md:col-span-2 linear-card p-6 rounded-2xl space-y-4 text-sm text-muted-foreground leading-relaxed">
+              <h2 className="text-xl font-bold text-foreground tracking-tight">
+                Software craft meets production infrastructure.
+              </h2>
               <p>
-                I am a final-year Computer Science student at <strong className="text-foreground">KNS Institute of Technology (Visvesvaraya Technological University)</strong> in Bengaluru, with dedicated training and internship experience in Cloud Architecture and DevOps engineering.
+                Currently completing my Computer Science Bachelor of Engineering at <strong className="text-foreground">KNS Institute of Technology (VTU)</strong> in Bengaluru. I combine a deep curiosity for operating systems with battle-tested AWS cloud design.
               </p>
               <p>
-                Following my completion of the intensive <strong className="text-foreground">210-hour AWS Re/Start</strong> program with Magic Bus India Foundation, I served as a <strong className="text-foreground">Cloud Engineering Intern at HEPro</strong>, where I developed and deployed cloud-native serverless solutions on AWS powering AI mentoring platforms.
-              </p>
-              <p>
-                My passion lies in <strong className="text-foreground">Infrastructure as Code (IaC)</strong>, automated CI/CD pipelines, container orchestration, and multi-tier high-availability infrastructure design.
+                In 2025, I completed the rigorous <strong className="text-foreground">210-hour AWS Re/Start program</strong> with Magic Bus India Foundation, focusing on core infrastructure automation. Most recently (Nov 2025 – Jan 2026), I completed a <strong className="text-foreground">Cloud Engineering Internship at HEPro</strong>, developing serverless AWS architectures for AI products.
               </p>
               <div className="pt-2 flex flex-wrap gap-2 text-xs font-mono">
-                <span className="px-3 py-1 rounded-md bg-secondary text-foreground border border-border">AWS Solutions</span>
-                <span className="px-3 py-1 rounded-md bg-secondary text-foreground border border-border">Serverless (Lambda)</span>
-                <span className="px-3 py-1 rounded-md bg-secondary text-foreground border border-border">Terraform & Bash</span>
-                <span className="px-3 py-1 rounded-md bg-secondary text-foreground border border-border">Docker & GitOps</span>
+                <span className="px-2.5 py-1 rounded bg-secondary text-foreground border border-border/80">AWS Architecture</span>
+                <span className="px-2.5 py-1 rounded bg-secondary text-foreground border border-border/80">Serverless Microservices</span>
+                <span className="px-2.5 py-1 rounded bg-secondary text-foreground border border-border/80">Docker & Containers</span>
+                <span className="px-2.5 py-1 rounded bg-secondary text-foreground border border-border/80">Linux & Shell Automation</span>
               </div>
             </div>
 
-            {/* Quick Facts Card */}
-            <div className="space-y-4 bg-card/50 border border-border/80 p-6 rounded-2xl flex flex-col justify-between">
+            {/* Snapshot Card */}
+            <div className="linear-card p-6 rounded-2xl flex flex-col justify-between space-y-4">
               <div className="space-y-3">
-                <h3 className="font-semibold text-sm tracking-wide uppercase text-muted-foreground">Snapshot</h3>
-                <div className="space-y-2.5 text-xs sm:text-sm">
+                <h3 className="text-xs font-mono uppercase tracking-wider text-muted-foreground font-semibold">Fast Facts</h3>
+                <div className="space-y-3 text-xs">
                   <div>
-                    <span className="text-muted-foreground block text-xs">Degree</span>
-                    <span className="font-medium text-foreground">B.E. Computer Science (VTU, 2026)</span>
+                    <span className="text-muted-foreground block">Education</span>
+                    <span className="font-semibold text-foreground">B.E. Computer Science (VTU, 2026)</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground block text-xs">Location</span>
-                    <span className="font-medium text-foreground">Bengaluru, Karnataka, India</span>
+                    <span className="text-muted-foreground block">Primary Location</span>
+                    <span className="font-semibold text-foreground">Bengaluru, Karnataka, India</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground block text-xs">Specialization</span>
-                    <span className="font-medium text-foreground">AWS Cloud, Linux, CI/CD, IaC</span>
+                    <span className="text-muted-foreground block">Recent Internship</span>
+                    <span className="font-semibold text-emerald-400">Cloud Engineering Intern (HEPro)</span>
                   </div>
                   <div>
-                    <span className="text-muted-foreground block text-xs">Recent Role</span>
-                    <span className="font-medium text-emerald-400">Cloud Engineering Intern (HEPro)</span>
+                    <span className="text-muted-foreground block">Verified Live Domain</span>
+                    <a href="https://bhargav-sah.me" target="_blank" rel="noreferrer" className="text-sky-400 hover:underline">
+                      bhargav-sah.me
+                    </a>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
-                <span>Domain</span>
-                <a href="https://bhargav-sah.me" target="_blank" rel="noreferrer" className="text-sky-400 hover:underline">
-                  bhargav-sah.me
-                </a>
+              <div className="pt-3 border-t border-border/80 text-[11px] text-muted-foreground font-mono">
+                Available for on-site & remote roles.
               </div>
             </div>
           </div>
         </section>
 
-        {/* FEATURED PROJECTS */}
-        <section id="projects" className="scroll-mt-24 space-y-8">
+        {/* INTERACTIVE CLOUD TOPOLOGY INSPECTOR (Showcase) */}
+        <section id="topology" className="scroll-mt-20 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <Server className="w-5 h-5" />
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-xs font-mono text-sky-400 uppercase tracking-widest">
+                <Boxes className="w-3.5 h-3.5" />
+                <span>Interactive Cloud Architecture</span>
               </div>
-              <div>
-                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Cloud & DevOps Projects</h2>
-                <p className="text-sm text-muted-foreground">Production-grade architectures, automation pipelines, and infrastructure deployments</p>
-              </div>
+              <h2 className="text-2xl font-bold tracking-tight text-foreground">
+                Deep-Dive Infrastructure Blueprints
+              </h2>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Click any architectural node to inspect network specifications, security groups, and design decisions.
+              </p>
             </div>
-            <a
-              href="https://github.com/bhargav59"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-mono text-sky-400 hover:text-sky-300"
-            >
-              <span>Explore GitHub</span>
-              <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+
+            {/* Blueprint Switcher */}
+            <div className="flex p-1 rounded-lg bg-secondary border border-border text-xs font-mono">
+              <button
+                onClick={() => { setActiveArchTab('vpc'); setSelectedNodeId('alb'); }}
+                className={`px-3 py-1 rounded-md transition-all ${activeArchTab === 'vpc' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                Multi-Tier VPC
+              </button>
+              <button
+                onClick={() => { setActiveArchTab('serverless'); setSelectedNodeId('apigw'); }}
+                className={`px-3 py-1 rounded-md transition-all ${activeArchTab === 'serverless' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                Serverless (HEPro)
+              </button>
+            </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid lg:grid-cols-3 gap-6">
             
-            {/* Project 1 */}
-            <div className="group rounded-2xl border border-border/80 bg-card/60 p-6 flex flex-col justify-between hover:border-sky-500/40 hover:shadow-glow-cyan transition-all">
-              <div className="space-y-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="p-2.5 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20">
-                    <Terminal className="w-5 h-5" />
-                  </div>
-                  <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    -80% Provisioning Time
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-foreground group-hover:text-sky-400 transition-colors">
-                    Automated Cloud Infrastructure Deployment Pipeline
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-1">AWS EC2 • Bash • Python • IAM • CloudWatch</p>
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Engineered automated EC2 deployment workflows using Bash and Python scripts, slashing manual resource provisioning time by 80%. Implemented automated instance lifecycle management, automated EBS storage attach, and proactive CloudWatch health monitoring daemons.
-                </p>
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {['AWS EC2', 'Shell Scripting', 'Python Boto3', 'IAM Policies', 'CloudWatch'].map(tag => (
-                    <span key={tag} className="text-[11px] font-mono px-2 py-0.5 rounded bg-secondary text-muted-foreground border border-border/60">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+            {/* Interactive Nodes Flow (Left 2 cols) */}
+            <div className="lg:col-span-2 linear-card p-6 rounded-2xl space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-border text-xs font-mono text-muted-foreground">
+                <span>Architecture Flow: Click node to inspect</span>
+                <span className="text-emerald-400 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  Active Configuration
+                </span>
               </div>
-              <div className="pt-6 border-t border-border/60 mt-6 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground font-mono">Infrastructure Automation</span>
-                <a
-                  href="https://github.com/bhargav59"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-400 hover:underline"
-                >
-                  <span>View Details</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </a>
+
+              <div className="grid sm:grid-cols-2 gap-3 pt-2">
+                {activeNodes.map(node => {
+                  const isSelected = selectedNodeId === node.id
+                  return (
+                    <button
+                      key={node.id}
+                      onClick={() => setSelectedNodeId(node.id)}
+                      className={`text-left p-4 rounded-xl border transition-all ${
+                        isSelected
+                          ? 'border-sky-500/80 bg-sky-500/10 shadow-sm'
+                          : 'border-border/70 bg-card/60 hover:border-border hover:bg-muted/40'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-sky-400 font-semibold">
+                          {node.tier}
+                        </span>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-sky-400" />}
+                      </div>
+                      <div className="font-bold text-sm text-foreground mt-1">{node.label}</div>
+                      <div className="text-xs text-muted-foreground font-mono mt-0.5">{node.service}</div>
+                      <div className="mt-3 text-[11px] text-muted-foreground line-clamp-2">
+                        {node.details}
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div className="p-3 rounded-lg bg-secondary/50 border border-border text-xs font-mono text-muted-foreground flex items-center justify-between">
+                <span>Network Protocol: TLS 1.3 / HTTPS</span>
+                <span className="text-sky-400">Zero Public Database Access</span>
               </div>
             </div>
 
-            {/* Project 2 */}
-            <div className="group rounded-2xl border border-border/80 bg-card/60 p-6 flex flex-col justify-between hover:border-emerald-500/40 hover:shadow-glow-emerald transition-all">
+            {/* Inspector Panel (Right 1 col) */}
+            <div className="linear-card p-6 rounded-2xl space-y-4 flex flex-col justify-between">
               <div className="space-y-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    <Layers className="w-5 h-5" />
-                  </div>
-                  <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">
-                    99.9% High Availability
+                <div className="flex items-center justify-between border-b border-border pb-3">
+                  <span className="text-xs font-mono uppercase text-sky-400 tracking-wider">Node Inspector</span>
+                  <span className="text-xs font-mono text-muted-foreground bg-secondary px-2 py-0.5 rounded">
+                    {currentNode.id.toUpperCase()}
                   </span>
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-foreground group-hover:text-emerald-400 transition-colors">
-                    Scalable Multi-Tier VPC Application Architecture
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-1">AWS VPC • ALB • RDS Multi-AZ • EC2 Auto Scaling</p>
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Designed and configured an enterprise-grade 2-tier AWS infrastructure featuring custom public/private subnets across multiple Availability Zones. Placed Application Load Balancers for traffic distribution, paired with isolated RDS MySQL instances with automated snapshot backups.
-                </p>
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {['AWS VPC', 'Subnet Masking', 'ALB Load Balancer', 'RDS MySQL', 'Security Groups'].map(tag => (
-                    <span key={tag} className="text-[11px] font-mono px-2 py-0.5 rounded bg-secondary text-muted-foreground border border-border/60">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="pt-6 border-t border-border/60 mt-6 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground font-mono">Resilient Cloud Network</span>
-                <a
-                  href="#architecture"
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 hover:underline"
-                >
-                  <span>View Blueprint</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            </div>
 
-            {/* Project 3 */}
-            <div className="group rounded-2xl border border-border/80 bg-card/60 p-6 flex flex-col justify-between hover:border-purple-500/40 transition-all">
-              <div className="space-y-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                    <Boxes className="w-5 h-5" />
-                  </div>
-                  <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                    Serverless Production
-                  </span>
-                </div>
                 <div>
-                  <h3 className="text-lg font-bold text-foreground group-hover:text-purple-400 transition-colors">
-                    HEPro AI Serverless Microservices Platform
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-1">AWS Lambda • API Gateway • DynamoDB • S3</p>
+                  <h3 className="font-bold text-base text-foreground">{currentNode.label}</h3>
+                  <p className="text-xs text-sky-400 font-mono mt-0.5">{currentNode.service}</p>
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Developed during my Cloud Engineering Internship at HEPro. Built serverless backend workflows powering AI mentoring tools, providing zero-idle-cost compute, auto-scaling capabilities, and fine-grained IAM security policies.
-                </p>
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {['AWS Lambda', 'API Gateway', 'DynamoDB', 'Serverless', 'HEPro AI'].map(tag => (
-                    <span key={tag} className="text-[11px] font-mono px-2 py-0.5 rounded bg-secondary text-muted-foreground border border-border/60">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="pt-6 border-t border-border/60 mt-6 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground font-mono">Internship Engineering</span>
-                <a
-                  href="/documents/hepro_certificate.pdf"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-purple-400 hover:underline"
-                >
-                  <span>Verify HEPro Work</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            </div>
 
-            {/* Project 4 */}
-            <div className="group rounded-2xl border border-border/80 bg-card/60 p-6 flex flex-col justify-between hover:border-amber-500/40 transition-all">
-              <div className="space-y-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                    <GitBranch className="w-5 h-5" />
+                <div className="space-y-2.5 text-xs">
+                  <div>
+                    <span className="text-muted-foreground block text-[11px] font-mono uppercase">Tier & Placement</span>
+                    <span className="font-medium text-foreground">{currentNode.tier}</span>
                   </div>
-                  <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                    GitOps & CI/CD
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-foreground group-hover:text-amber-400 transition-colors">
-                    Continuous Delivery & Container Build Automation
-                  </h3>
-                  <p className="text-xs text-muted-foreground mt-1">GitHub Actions • Docker • Linux • Automated Testing</p>
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Configured end-to-end GitHub Actions workflow triggers building lightweight Docker containers, performing automated security linting, and delivering versioned build artifacts across staging and production branches.
-                </p>
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {['GitHub Actions', 'Docker', 'Linux CLI', 'Container Registry', 'CI/CD'].map(tag => (
-                    <span key={tag} className="text-[11px] font-mono px-2 py-0.5 rounded bg-secondary text-muted-foreground border border-border/60">
-                      {tag}
+                  <div>
+                    <span className="text-muted-foreground block text-[11px] font-mono uppercase">Subnet CIDR / Scope</span>
+                    <span className="font-mono text-foreground bg-secondary px-1.5 py-0.5 rounded text-[11px]">
+                      {currentNode.cidr}
                     </span>
-                  ))}
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-[11px] font-mono uppercase">Ports & Protocol</span>
+                    <span className="font-mono text-emerald-400 text-[11px]">{currentNode.ports}</span>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground block text-[11px] font-mono uppercase">Security Group Policy</span>
+                    <p className="text-muted-foreground leading-relaxed text-[11px] bg-secondary/60 p-2 rounded border border-border">
+                      {currentNode.sgRule}
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="pt-6 border-t border-border/60 mt-6 flex items-center justify-between">
-                <span className="text-xs text-muted-foreground font-mono">Automated Delivery</span>
-                <a
-                  href="https://github.com/bhargav59"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-400 hover:underline"
-                >
-                  <span>Explore Repository</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </a>
+
+              <div className="pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground font-mono">
+                <span>Verified in code</span>
+                <a href="#projects" className="text-sky-400 hover:underline">View in project →</a>
               </div>
             </div>
 
           </div>
         </section>
 
-        {/* INTERACTIVE CLOUD ARCHITECTURE BLUEPRINT */}
-        <section id="architecture" className="scroll-mt-24 space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20">
-              <Boxes className="w-5 h-5" />
+        {/* FEATURED PROJECTS WITH FILTER TABS */}
+        <section id="projects" className="scroll-mt-20 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 text-xs font-mono text-sky-400 uppercase tracking-widest">
+                <Server className="w-3.5 h-3.5" />
+                <span>Production Workloads</span>
+              </div>
+              <h2 className="text-2xl font-bold tracking-tight text-foreground">
+                Cloud Infrastructure & DevOps Projects
+              </h2>
             </div>
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Interactive Cloud Topology</h2>
-              <p className="text-sm text-muted-foreground">Architectural design patterns designed and implemented across my projects</p>
+
+            {/* Filter Tabs */}
+            <div className="flex flex-wrap gap-1.5 text-xs font-mono">
+              {[
+                { id: 'all', label: 'All Projects' },
+                { id: 'aws', label: 'AWS Cloud' },
+                { id: 'serverless', label: 'Serverless' },
+                { id: 'devops', label: 'CI/CD & GitOps' }
+              ].map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => setProjectFilter(t.id as any)}
+                  className={`px-3 py-1 rounded-md transition-colors ${
+                    projectFilter === t.id
+                      ? 'bg-foreground text-background font-semibold'
+                      : 'bg-secondary text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Blueprint Container */}
-          <div className="border border-border/80 bg-card/60 rounded-2xl p-6 space-y-6">
-            
-            {/* Tab Selectors */}
-            <div className="flex flex-wrap gap-2 border-b border-border/80 pb-4">
-              <button
-                onClick={() => setActiveArchTab('vpc')}
-                className={`px-4 py-2 rounded-lg text-xs font-mono transition-all ${
-                  activeArchTab === 'vpc'
-                    ? 'bg-sky-500 text-slate-950 font-bold shadow-glow-cyan'
-                    : 'bg-secondary text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                1. Multi-Tier High-Availability VPC
-              </button>
-              <button
-                onClick={() => setActiveArchTab('serverless')}
-                className={`px-4 py-2 rounded-lg text-xs font-mono transition-all ${
-                  activeArchTab === 'serverless'
-                    ? 'bg-purple-500 text-slate-950 font-bold'
-                    : 'bg-secondary text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                2. Serverless Microservices (HEPro AI)
-              </button>
-              <button
-                onClick={() => setActiveArchTab('cicd')}
-                className={`px-4 py-2 rounded-lg text-xs font-mono transition-all ${
-                  activeArchTab === 'cicd'
-                    ? 'bg-emerald-500 text-slate-950 font-bold shadow-glow-emerald'
-                    : 'bg-secondary text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                3. GitOps Automated CI/CD Pipeline
-              </button>
-            </div>
+          <div className="grid md:grid-cols-2 gap-5">
+            {filteredProjects.map(project => (
+              <div key={project.id} className="linear-card p-6 rounded-2xl flex flex-col justify-between space-y-4 group">
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="text-[11px] font-mono text-sky-400 bg-sky-500/10 border border-sky-500/20 px-2 py-0.5 rounded">
+                      {project.badge}
+                    </span>
+                    <span className={`text-[11px] font-mono font-semibold ${project.metricColor}`}>
+                      {project.metric}
+                    </span>
+                  </div>
 
-            {/* TAB 1: VPC */}
-            {activeArchTab === 'vpc' && (
-              <div className="space-y-6">
-                <div className="grid md:grid-cols-4 gap-4 text-center">
-                  <div className="p-4 rounded-xl border border-sky-500/30 bg-sky-500/5 space-y-1">
-                    <span className="text-[10px] uppercase font-mono text-sky-400 font-semibold">Tier 1: Ingress</span>
-                    <h4 className="font-bold text-sm text-foreground">Internet Gateway + Route 53</h4>
-                    <p className="text-xs text-muted-foreground">DNS resolution with health checks & latency routing.</p>
-                  </div>
-                  <div className="p-4 rounded-xl border border-cyan-500/30 bg-cyan-500/5 space-y-1">
-                    <span className="text-[10px] uppercase font-mono text-cyan-400 font-semibold">Tier 2: Public Subnet</span>
-                    <h4 className="font-bold text-sm text-foreground">Application Load Balancer</h4>
-                    <p className="text-xs text-muted-foreground">SSL/TLS termination & SSL certs across AZ-1 & AZ-2.</p>
-                  </div>
-                  <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-1">
-                    <span className="text-[10px] uppercase font-mono text-emerald-400 font-semibold">Tier 3: Private Subnet</span>
-                    <h4 className="font-bold text-sm text-foreground">EC2 Auto Scaling Group</h4>
-                    <p className="text-xs text-muted-foreground">Zero direct internet access; NAT Gateway outbound updates.</p>
-                  </div>
-                  <div className="p-4 rounded-xl border border-purple-500/30 bg-purple-500/5 space-y-1">
-                    <span className="text-[10px] uppercase font-mono text-purple-400 font-semibold">Tier 4: Isolated Data</span>
-                    <h4 className="font-bold text-sm text-foreground">RDS MySQL Multi-AZ</h4>
-                    <p className="text-xs text-muted-foreground">Synchronous replication with automatic failover standby.</p>
+                  <h3 className="font-bold text-base text-foreground group-hover:text-sky-400 transition-colors">
+                    {project.title}
+                  </h3>
+
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                    {project.description}
+                  </p>
+
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {project.tech.map(t => (
+                      <span key={t} className="text-[10px] font-mono px-2 py-0.5 rounded bg-secondary text-muted-foreground border border-border">
+                        {t}
+                      </span>
+                    ))}
                   </div>
                 </div>
 
-                <div className="p-4 rounded-xl bg-background/50 border border-border/80 font-mono text-xs text-muted-foreground space-y-2">
-                  <div className="flex items-center gap-2 text-sky-400 font-semibold">
-                    <Shield className="w-4 h-4" />
-                    <span>Security Group Defense-in-Depth Specification</span>
-                  </div>
-                  <p>• ALB Security Group: Inbound 443/80 from 0.0.0.0/0 → Outbound to EC2 SG only</p>
-                  <p>• Compute EC2 Security Group: Inbound Port 8080 ONLY from ALB SG → No direct public traffic</p>
-                  <p>• Database RDS Security Group: Inbound Port 3306 ONLY from EC2 SG → Isolated private subnet</p>
+                <div className="pt-4 border-t border-border flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground font-mono text-[11px]">Production Tested</span>
+                  <a
+                    href={project.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 font-semibold text-sky-400 hover:underline"
+                  >
+                    <span>View Resource</span>
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                  </a>
                 </div>
               </div>
-            )}
-
-            {/* TAB 2: Serverless */}
-            {activeArchTab === 'serverless' && (
-              <div className="space-y-6">
-                <div className="grid md:grid-cols-4 gap-4 text-center">
-                  <div className="p-4 rounded-xl border border-purple-500/30 bg-purple-500/5 space-y-1">
-                    <span className="text-[10px] uppercase font-mono text-purple-400 font-semibold">Frontend Client</span>
-                    <h4 className="font-bold text-sm text-foreground">S3 + CloudFront CDN</h4>
-                    <p className="text-xs text-muted-foreground">Global cached edge delivery of web assets.</p>
-                  </div>
-                  <div className="p-4 rounded-xl border border-purple-500/30 bg-purple-500/5 space-y-1">
-                    <span className="text-[10px] uppercase font-mono text-purple-400 font-semibold">API Layer</span>
-                    <h4 className="font-bold text-sm text-foreground">Amazon API Gateway</h4>
-                    <p className="text-xs text-muted-foreground">REST endpoint routing, rate limiting, and JWT auth.</p>
-                  </div>
-                  <div className="p-4 rounded-xl border border-purple-500/30 bg-purple-500/5 space-y-1">
-                    <span className="text-[10px] uppercase font-mono text-purple-400 font-semibold">Serverless Compute</span>
-                    <h4 className="font-bold text-sm text-foreground">AWS Lambda (Python)</h4>
-                    <p className="text-xs text-muted-foreground">Stateless execution triggered on-demand with zero idle fees.</p>
-                  </div>
-                  <div className="p-4 rounded-xl border border-purple-500/30 bg-purple-500/5 space-y-1">
-                    <span className="text-[10px] uppercase font-mono text-purple-400 font-semibold">Persistence</span>
-                    <h4 className="font-bold text-sm text-foreground">Amazon DynamoDB</h4>
-                    <p className="text-xs text-muted-foreground">Single-digit millisecond NoSQL response time at any scale.</p>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-background/50 border border-border/80 font-mono text-xs text-muted-foreground space-y-2">
-                  <div className="flex items-center gap-2 text-purple-400 font-semibold">
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>Cost & Operational Highlights</span>
-                  </div>
-                  <p>• Scales instantaneously from 0 to thousands of concurrent requests without server administration.</p>
-                  <p>• Validated in production workloads during HEPro AI career platform internship.</p>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 3: CI/CD */}
-            {activeArchTab === 'cicd' && (
-              <div className="space-y-6">
-                <div className="grid md:grid-cols-4 gap-4 text-center">
-                  <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-1">
-                    <span className="text-[10px] uppercase font-mono text-emerald-400 font-semibold">Source</span>
-                    <h4 className="font-bold text-sm text-foreground">GitHub PR / Push</h4>
-                    <p className="text-xs text-muted-foreground">Branch protection rules & mandatory review gates.</p>
-                  </div>
-                  <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-1">
-                    <span className="text-[10px] uppercase font-mono text-emerald-400 font-semibold">Automated CI</span>
-                    <h4 className="font-bold text-sm text-foreground">GitHub Actions Runner</h4>
-                    <p className="text-xs text-muted-foreground">Linting, unit tests, code coverage, vulnerability scan.</p>
-                  </div>
-                  <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-1">
-                    <span className="text-[10px] uppercase font-mono text-emerald-400 font-semibold">Container Packaging</span>
-                    <h4 className="font-bold text-sm text-foreground">Docker Build & Tag</h4>
-                    <p className="text-xs text-muted-foreground">Multi-stage minimal image build pushed to AWS ECR / Registry.</p>
-                  </div>
-                  <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-1">
-                    <span className="text-[10px] uppercase font-mono text-emerald-400 font-semibold">Deployment</span>
-                    <h4 className="font-bold text-sm text-foreground">Zero-Downtime Release</h4>
-                    <p className="text-xs text-muted-foreground">Automated rollouts with instant rollback on health check fail.</p>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-xl bg-background/50 border border-border/80 font-mono text-xs text-muted-foreground space-y-2">
-                  <div className="flex items-center gap-2 text-emerald-400 font-semibold">
-                    <GitBranch className="w-4 h-4" />
-                    <span>GitOps Principles</span>
-                  </div>
-                  <p>• Git repository acts as the single source of truth for all infrastructure and code states.</p>
-                  <p>• Automated GitHub Actions workflow prevents human configuration drift.</p>
-                </div>
-              </div>
-            )}
-
+            ))}
           </div>
         </section>
 
-        {/* INTERACTIVE DEVOPS TERMINAL */}
-        <section id="terminal" className="scroll-mt-24 space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20">
-              <Terminal className="w-5 h-5" />
+        {/* IN-BROWSER CLOUD TERMINAL */}
+        <section id="terminal" className="scroll-mt-20 space-y-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-xs font-mono text-sky-400 uppercase tracking-widest">
+              <Terminal className="w-3.5 h-3.5" />
+              <span>Interactive Cloud CLI</span>
             </div>
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Interactive Cloud CLI</h2>
-              <p className="text-sm text-muted-foreground">Test simulated AWS CLI commands or inspect system configs directly in your browser</p>
-            </div>
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">
+              Run Infrastructure Diagnostics
+            </h2>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Test simulated AWS CLI commands or inspect system configs directly in your browser.
+            </p>
           </div>
 
-          <div className="rounded-2xl border border-border bg-slate-950 shadow-2xl overflow-hidden font-mono text-xs sm:text-sm">
-            {/* Terminal Top Bar */}
-            <div className="bg-slate-900/90 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+          <div className="rounded-2xl border border-white/10 bg-[#090b10] shadow-2xl overflow-hidden font-mono text-xs">
+            {/* Window Chrome */}
+            <div className="bg-[#10131a] px-4 py-2.5 border-b border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500/80" />
-                <div className="w-3 h-3 rounded-full bg-amber-500/80" />
-                <div className="w-3 h-3 rounded-full bg-emerald-500/80" />
-                <span className="text-slate-400 text-xs ml-2">bhargav@aws-bastion:~</span>
+                <div className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
+                <div className="w-2.5 h-2.5 rounded-full bg-amber-500/80" />
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
+                <span className="text-slate-400 text-[11px] ml-2">bhargav@aws-control-plane:~</span>
               </div>
-              <span className="text-slate-500 text-xs hidden sm:inline">zsh • session active</span>
+              <span className="text-slate-500 text-[11px] hidden sm:inline">zsh • session active</span>
             </div>
 
-            {/* Quick Command Suggestion Pills */}
-            <div className="p-3 bg-slate-900/40 border-b border-slate-800/80 flex flex-wrap gap-2 text-xs">
-              <span className="text-slate-500 self-center">Try:</span>
-              <button onClick={() => handleCommand('whoami')} className="px-2.5 py-1 rounded bg-slate-800 text-sky-400 hover:bg-slate-700">whoami</button>
-              <button onClick={() => handleCommand('aws status')} className="px-2.5 py-1 rounded bg-slate-800 text-emerald-400 hover:bg-slate-700">aws status</button>
-              <button onClick={() => handleCommand('skills')} className="px-2.5 py-1 rounded bg-slate-800 text-cyan-400 hover:bg-slate-700">skills</button>
-              <button onClick={() => handleCommand('projects')} className="px-2.5 py-1 rounded bg-slate-800 text-purple-400 hover:bg-slate-700">projects</button>
-              <button onClick={() => handleCommand('contact')} className="px-2.5 py-1 rounded bg-slate-800 text-amber-400 hover:bg-slate-700">contact</button>
-              <button onClick={() => handleCommand('clear')} className="px-2.5 py-1 rounded bg-slate-800 text-slate-400 hover:bg-slate-700">clear</button>
+            {/* Quick Chips */}
+            <div className="p-2.5 bg-[#0d0f15] border-b border-white/5 flex flex-wrap gap-1.5 text-[11px]">
+              <span className="text-slate-500 self-center mr-1">Suggestions:</span>
+              <button onClick={() => handleCommand('whoami')} className="px-2 py-0.5 rounded bg-white/5 text-sky-400 hover:bg-white/10">whoami</button>
+              <button onClick={() => handleCommand('aws status')} className="px-2 py-0.5 rounded bg-white/5 text-emerald-400 hover:bg-white/10">aws status</button>
+              <button onClick={() => handleCommand('skills')} className="px-2 py-0.5 rounded bg-white/5 text-cyan-400 hover:bg-white/10">skills</button>
+              <button onClick={() => handleCommand('projects')} className="px-2 py-0.5 rounded bg-white/5 text-purple-400 hover:bg-white/10">projects</button>
+              <button onClick={() => handleCommand('contact')} className="px-2 py-0.5 rounded bg-white/5 text-amber-400 hover:bg-white/10">contact</button>
+              <button onClick={() => handleCommand('clear')} className="px-2 py-0.5 rounded bg-white/5 text-slate-400 hover:bg-white/10">clear</button>
             </div>
 
             {/* Terminal Body */}
-            <div className="p-4 sm:p-6 space-y-4 max-h-[380px] overflow-y-auto">
+            <div className="p-4 sm:p-5 space-y-3 max-h-[340px] overflow-y-auto">
               {terminalHistory.map((item, idx) => (
                 <div key={idx} className="space-y-1">
                   <div className="flex items-center gap-2 text-slate-400">
-                    <span className="text-emerald-400">bhargav@aws-bastion:~$</span>
+                    <span className="text-emerald-400">bhargav@aws-control-plane:~$</span>
                     <span className="text-slate-100 font-semibold">{item.command}</span>
                   </div>
-                  <div className="text-slate-300 pl-4 border-l border-slate-800 py-0.5 whitespace-pre-wrap">
+                  <div className="text-slate-300 pl-4 border-l border-white/10 py-0.5 whitespace-pre-wrap">
                     {item.output}
                   </div>
                 </div>
               ))}
 
-              {/* Active prompt input */}
-              <form onSubmit={(e) => { e.preventDefault(); handleCommand(); }} className="flex items-center gap-2 pt-2">
-                <span className="text-emerald-400 font-bold">bhargav@aws-bastion:~$</span>
+              {/* Active Prompt */}
+              <form onSubmit={(e) => { e.preventDefault(); handleCommand(); }} className="flex items-center gap-2 pt-1">
+                <span className="text-emerald-400 font-bold">bhargav@aws-control-plane:~$</span>
                 <input
                   type="text"
                   value={terminalInput}
                   onChange={(e) => setTerminalInput(e.target.value)}
-                  placeholder="type 'help' or any command above..."
-                  className="flex-1 bg-transparent border-none outline-none text-slate-100 placeholder:text-slate-600 font-mono text-xs sm:text-sm"
+                  placeholder="type 'help' or click any suggestion above..."
+                  className="flex-1 bg-transparent border-none outline-none text-slate-100 placeholder:text-slate-600 font-mono text-xs"
                 />
               </form>
             </div>
           </div>
         </section>
 
-        {/* SKILLS MATRIX */}
-        <section id="skills" className="scroll-mt-24 space-y-8">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20">
-              <Cpu className="w-5 h-5" />
+        {/* TECHNICAL MATRIX (HashiCorp Toolchain Identity Style) */}
+        <section id="skills" className="scroll-mt-20 space-y-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-xs font-mono text-sky-400 uppercase tracking-widest">
+              <Cpu className="w-3.5 h-3.5" />
+              <span>Competencies</span>
             </div>
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Technical Competencies</h2>
-              <p className="text-sm text-muted-foreground">Core toolchain across cloud, automation, networking, and system engineering</p>
-            </div>
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">
+              Technical Stack & Toolchain Matrix
+            </h2>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
-            {/* Cloud */}
-            <div className="p-5 rounded-2xl border border-border/80 bg-card/60 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400">
-                  <Cloud className="w-5 h-5" />
+            {/* AWS Cloud */}
+            <div className="linear-card p-5 rounded-2xl space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-md bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
+                  <Cloud className="w-3.5 h-3.5" />
                 </div>
-                <h3 className="font-bold text-base">AWS Cloud</h3>
+                <h3 className="font-bold text-sm">AWS Cloud Core</h3>
               </div>
-              <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground font-mono">
+              <ul className="space-y-1.5 text-xs text-muted-foreground font-mono">
                 <li>• EC2 & Auto Scaling</li>
-                <li>• VPC, Subnets & Routing</li>
-                <li>• ALB & Elastic Beanstalk</li>
-                <li>• RDS (MySQL) & DynamoDB</li>
-                <li>• S3 & EBS Storage</li>
+                <li>• VPC, Subnets & Nat GW</li>
+                <li>• ALB Load Balancers</li>
+                <li>• RDS MySQL Multi-AZ</li>
+                <li>• DynamoDB (NoSQL)</li>
+                <li>• AWS Lambda Serverless</li>
                 <li>• IAM Policies & Roles</li>
-                <li>• CloudWatch Monitoring</li>
-                <li>• AWS Lambda (Serverless)</li>
+                <li>• CloudWatch Alarms</li>
               </ul>
             </div>
 
             {/* DevOps & IaC */}
-            <div className="p-5 rounded-2xl border border-border/80 bg-card/60 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
-                  <GitBranch className="w-5 h-5" />
+            <div className="linear-card p-5 rounded-2xl space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-md bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
+                  <GitBranch className="w-3.5 h-3.5" />
                 </div>
-                <h3 className="font-bold text-base">DevOps & IaC</h3>
+                <h3 className="font-bold text-sm">DevOps & Delivery</h3>
               </div>
-              <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground font-mono">
-                <li>• GitHub Actions (CI/CD)</li>
-                <li>• Docker & Containers</li>
-                <li>• Terraform (IaC Basics)</li>
+              <ul className="space-y-1.5 text-xs text-muted-foreground font-mono">
+                <li>• GitHub Actions CI/CD</li>
+                <li>• Docker Containerization</li>
+                <li>• Terraform IaC (Foundations)</li>
                 <li>• Ansible Fundamentals</li>
                 <li>• Git Branching & PRs</li>
-                <li>• Automated Testing</li>
-                <li>• Infrastructure Automation</li>
-                <li>• Zero-Downtime Rollouts</li>
+                <li>• Automated Lint & Test</li>
+                <li>• Multi-Stage Builds</li>
+                <li>• Automated Rollbacks</li>
               </ul>
             </div>
 
             {/* Linux & Systems */}
-            <div className="p-5 rounded-2xl border border-border/80 bg-card/60 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400">
-                  <Server className="w-5 h-5" />
+            <div className="linear-card p-5 rounded-2xl space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-md bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+                  <Server className="w-3.5 h-3.5" />
                 </div>
-                <h3 className="font-bold text-base">Linux & Systems</h3>
+                <h3 className="font-bold text-sm">Linux Systems</h3>
               </div>
-              <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground font-mono">
+              <ul className="space-y-1.5 text-xs text-muted-foreground font-mono">
                 <li>• Ubuntu / Amazon Linux</li>
-                <li>• Bash & Shell Scripting</li>
-                <li>• Systemd & Cron Jobs</li>
-                <li>• SSH Keys & Bastion Hosts</li>
-                <li>• User / Permission Mgmt</li>
-                <li>• Storage & Volume Mounting</li>
-                <li>• Log Parsing & Auditing</li>
-                <li>• Performance Tuning</li>
+                <li>• Bash & Shell Automation</li>
+                <li>• Systemd & Cron Services</li>
+                <li>• SSH Keys & Bastion Access</li>
+                <li>• User / Permission ACLs</li>
+                <li>• Storage & EBS Mounting</li>
+                <li>• Log Parsing & Audits</li>
+                <li>• Kernel Metric Monitoring</li>
               </ul>
             </div>
 
             {/* Networking & DB */}
-            <div className="p-5 rounded-2xl border border-border/80 bg-card/60 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-purple-500/10 text-purple-400">
-                  <Database className="w-5 h-5" />
+            <div className="linear-card p-5 rounded-2xl space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-md bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                  <Database className="w-3.5 h-3.5" />
                 </div>
-                <h3 className="font-bold text-base">Networking & DB</h3>
+                <h3 className="font-bold text-sm">Network & Data</h3>
               </div>
-              <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground font-mono">
-                <li>• VPC CIDR Architecture</li>
-                <li>• NAT Gateways & IGW</li>
+              <ul className="space-y-1.5 text-xs text-muted-foreground font-mono">
+                <li>• CIDR Block Planning</li>
                 <li>• Security Groups & NACLs</li>
-                <li>• DNS & Route 53</li>
-                <li>• TCP/IP & SSL/TLS</li>
-                <li>• MySQL Database Admin</li>
-                <li>• DynamoDB NoSQL Modeling</li>
-                <li>• Automated Backups</li>
+                <li>• Route 53 DNS Routing</li>
+                <li>• SSL/TLS Termination</li>
+                <li>• MySQL Administration</li>
+                <li>• DynamoDB Single-Table</li>
+                <li>• Automated Snapshots</li>
+                <li>• Zero-Trust Isolation</li>
               </ul>
             </div>
 
           </div>
         </section>
 
-        {/* WORK & TRAINING EXPERIENCE */}
-        <section id="experience" className="scroll-mt-24 space-y-8">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20">
-              <Building2 className="w-5 h-5" />
+        {/* EXPERIENCE TIMELINE */}
+        <section id="experience" className="scroll-mt-20 space-y-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-xs font-mono text-sky-400 uppercase tracking-widest">
+              <Calendar className="w-3.5 h-3.5" />
+              <span>Career Trajectory</span>
             </div>
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Experience & Professional Training</h2>
-              <p className="text-sm text-muted-foreground">Practical internships, immersion programs, and formal computer science education</p>
-            </div>
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">
+              Internship Experience & Immersion
+            </h2>
           </div>
 
-          <div className="relative border-l-2 border-border/80 ml-4 pl-6 space-y-10">
+          <div className="relative border-l border-border/80 ml-3.5 pl-6 space-y-8">
             
-            {/* Timeline Item 1 */}
-            <div className="relative group">
-              <div className="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-emerald-400 border-4 border-background" />
-              <div className="bg-card/60 border border-border/80 rounded-2xl p-6 space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <span className="text-xs font-mono font-bold uppercase text-emerald-400">Production Internship</span>
-                    <h3 className="text-lg font-bold text-foreground">Cloud Engineering Intern • HEPro</h3>
-                  </div>
-                  <span className="text-xs font-mono text-muted-foreground bg-secondary px-2.5 py-1 rounded">Nov 2025 – Jan 2026</span>
+            {/* Item 1: HEPro */}
+            <div className="relative space-y-2">
+              <div className="absolute -left-[30px] top-1.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-background" />
+              <div className="linear-card p-5 rounded-2xl space-y-2.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                  <div className="font-bold text-base text-foreground">Cloud Engineering Intern • HEPro</div>
+                  <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                    Nov 2025 – Jan 2026
+                  </span>
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                   Contributed to HEPro AI product development (HEPro AI / HEPro+), focusing on scalable, secure, and cost-efficient cloud-native solutions. Assisted in the design and deployment of serverless AWS components, API Gateway integrations, DynamoDB schemas, and automated CI/CD deployment routines.
                 </p>
-                <div className="flex items-center gap-3 pt-2">
+                <div className="pt-1">
                   <a
                     href="/documents/hepro_certificate.pdf"
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 hover:underline"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-400 hover:underline"
                   >
-                    <span>View Internship Certificate</span>
-                    <ArrowUpRight className="w-3.5 h-3.5" />
+                    <span>View Official Internship Certificate</span>
+                    <ArrowUpRight className="w-3 h-3" />
                   </a>
                 </div>
               </div>
             </div>
 
-            {/* Timeline Item 2 */}
-            <div className="relative group">
-              <div className="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-sky-400 border-4 border-background" />
-              <div className="bg-card/60 border border-border/80 rounded-2xl p-6 space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <span className="text-xs font-mono font-bold uppercase text-sky-400">210 Hours Immersion</span>
-                    <h3 className="text-lg font-bold text-foreground">AWS Re/Start Program (On-the-Job Training) • Magic Bus India</h3>
-                  </div>
-                  <span className="text-xs font-mono text-muted-foreground bg-secondary px-2.5 py-1 rounded">May 2025 – July 2025</span>
+            {/* Item 2: Magic Bus */}
+            <div className="relative space-y-2">
+              <div className="absolute -left-[30px] top-1.5 w-3 h-3 rounded-full bg-sky-400 border-2 border-background" />
+              <div className="linear-card p-5 rounded-2xl space-y-2.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                  <div className="font-bold text-base text-foreground">AWS Re/Start Program (210 Hours) • Magic Bus India</div>
+                  <span className="text-xs font-mono text-sky-400 bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/20">
+                    May 2025 – July 2025
+                  </span>
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                   Completed intensive 210-hour technical training focused on core AWS services (EC2, S3, VPC, RDS, IAM, CloudWatch). Developed automation scripts and deployment workflows under direct mentorship of Senior AWS Technical Consultants. Commended for diligence, adaptability, and high technical quality.
                 </p>
-                <div className="flex items-center gap-3 pt-2">
+                <div className="pt-1">
                   <a
                     href="/documents/Bhargav_OJT.pdf"
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-400 hover:underline"
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-sky-400 hover:underline"
                   >
                     <span>View OJT Credential</span>
-                    <ArrowUpRight className="w-3.5 h-3.5" />
+                    <ArrowUpRight className="w-3 h-3" />
                   </a>
                 </div>
               </div>
             </div>
 
-            {/* Timeline Item 3 */}
-            <div className="relative group">
-              <div className="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-purple-400 border-4 border-background" />
-              <div className="bg-card/60 border border-border/80 rounded-2xl p-6 space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <span className="text-xs font-mono font-bold uppercase text-purple-400">Job Simulation</span>
-                    <h3 className="text-lg font-bold text-foreground">AWS APAC Solutions Architecture • Forage</h3>
-                  </div>
-                  <span className="text-xs font-mono text-muted-foreground bg-secondary px-2.5 py-1 rounded">Nov 2025</span>
+            {/* Item 3: Forage */}
+            <div className="relative space-y-2">
+              <div className="absolute -left-[30px] top-1.5 w-3 h-3 rounded-full bg-purple-400 border-2 border-background" />
+              <div className="linear-card p-5 rounded-2xl space-y-2.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                  <div className="font-bold text-base text-foreground">AWS APAC Solutions Architecture • Forage</div>
+                  <span className="text-xs font-mono text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
+                    Nov 2025
+                  </span>
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Executed practical tasks designing a simple, scalable hosting architecture using Elastic Beanstalk for a client experiencing rapid traffic growth. Prepared comprehensive technical documentation explaining functionality, high availability principles, and projected AWS cloud cost calculations.
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  Executed practical tasks designing a scalable hosting architecture using Elastic Beanstalk for a client experiencing rapid traffic growth. Prepared comprehensive technical documentation explaining functionality, high availability principles, and projected AWS cloud cost calculations.
                 </p>
               </div>
             </div>
 
-            {/* Timeline Item 4 */}
-            <div className="relative group">
-              <div className="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-slate-400 border-4 border-background" />
-              <div className="bg-card/60 border border-border/80 rounded-2xl p-6 space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <span className="text-xs font-mono font-bold uppercase text-muted-foreground">Formal Education</span>
-                    <h3 className="text-lg font-bold text-foreground">Bachelor of Engineering in Computer Science • KNSIT (VTU)</h3>
-                  </div>
-                  <span className="text-xs font-mono text-muted-foreground bg-secondary px-2.5 py-1 rounded">Expected 2026</span>
+            {/* Item 4: Education */}
+            <div className="relative space-y-2">
+              <div className="absolute -left-[30px] top-1.5 w-3 h-3 rounded-full bg-slate-400 border-2 border-background" />
+              <div className="linear-card p-5 rounded-2xl space-y-2.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                  <div className="font-bold text-base text-foreground">B.E. in Computer Science • KNSIT (VTU)</div>
+                  <span className="text-xs font-mono text-muted-foreground bg-secondary px-2 py-0.5 rounded">
+                    Expected 2026
+                  </span>
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Rigorous computer science curriculum covering Operating Systems, Distributed Systems, Computer Networks, Database Management Systems, and Object-Oriented Software Design.
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  Core curriculum covering Operating Systems, Distributed Systems, Computer Networks, Database Management Systems, and Object-Oriented Software Design.
                 </p>
               </div>
             </div>
@@ -1058,59 +1062,59 @@ export default function App() {
         </section>
 
         {/* VERIFIED CREDENTIALS */}
-        <section id="certifications" className="scroll-mt-24 space-y-8">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20">
-              <Award className="w-5 h-5" />
+        <section id="credentials" className="scroll-mt-20 space-y-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-xs font-mono text-sky-400 uppercase tracking-widest">
+              <Award className="w-3.5 h-3.5" />
+              <span>Certificates & Verification</span>
             </div>
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">Verified Certifications</h2>
-              <p className="text-sm text-muted-foreground">Validated training credentials and industry certifications with downloadable PDFs</p>
-            </div>
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">
+              Verified Industry Certifications
+            </h2>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-6">
+          <div className="grid sm:grid-cols-2 gap-4">
             {certs.map(cert => (
-              <div key={cert.id} className="border border-border/80 bg-card/60 rounded-2xl p-6 flex flex-col justify-between hover:border-sky-500/40 transition-all">
-                <div className="space-y-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">
+              <div key={cert.id} className="linear-card p-5 rounded-2xl flex flex-col justify-between space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20">
                       {cert.badge}
                     </span>
                     <span className="text-xs text-muted-foreground font-mono">{cert.period}</span>
                   </div>
 
                   <div>
-                    <h3 className="text-lg font-bold text-foreground">{cert.title}</h3>
-                    <p className="text-xs text-muted-foreground font-medium mt-0.5">{cert.issuer}</p>
+                    <h3 className="font-bold text-sm text-foreground">{cert.title}</h3>
+                    <p className="text-xs text-muted-foreground font-medium">{cert.issuer}</p>
                   </div>
 
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     {cert.description}
                   </p>
 
-                  <div className="flex flex-wrap gap-1.5 pt-1">
+                  <div className="flex flex-wrap gap-1 pt-1">
                     {cert.skills.map(s => (
-                      <span key={s} className="text-[10px] font-mono px-2 py-0.5 rounded bg-secondary text-foreground">
+                      <span key={s} className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-secondary text-foreground">
                         {s}
                       </span>
                     ))}
                   </div>
                 </div>
 
-                <div className="pt-6 border-t border-border/60 mt-6 flex items-center justify-between gap-3">
+                <div className="pt-3 border-t border-border flex items-center justify-between gap-3 text-xs">
                   <button
                     onClick={() => setSelectedCertModal(cert.file)}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-400 hover:underline"
+                    className="inline-flex items-center gap-1 font-semibold text-sky-400 hover:underline"
                   >
                     <FileText className="w-3.5 h-3.5" />
-                    <span>Preview Certificate</span>
+                    <span>Preview Document</span>
                   </button>
 
                   <a
                     href={cert.file}
                     download
-                    className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+                    className="inline-flex items-center gap-1 font-medium text-muted-foreground hover:text-foreground"
                   >
                     <Download className="w-3.5 h-3.5" />
                     <span>Download PDF</span>
@@ -1121,23 +1125,23 @@ export default function App() {
           </div>
         </section>
 
-        {/* CONTACT & GET IN TOUCH */}
-        <section id="contact" className="scroll-mt-24 space-y-8">
-          <div className="border border-sky-500/20 bg-gradient-to-br from-card/80 via-card/50 to-sky-500/5 rounded-3xl p-8 sm:p-12 text-center space-y-6 relative overflow-hidden">
-            <div className="max-w-2xl mx-auto space-y-3">
-              <span className="text-xs font-mono uppercase tracking-widest text-sky-400 font-semibold">Let's Connect</span>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground">Ready to Build Scalable Cloud Systems</h2>
-              <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-                Whether you're hiring for a Cloud Engineer, DevOps specialist, or want to discuss AWS infrastructure architectures — my inbox is always open.
+        {/* CALL TO ACTION & FOOTER BANNER */}
+        <section id="contact" className="scroll-mt-20">
+          <div className="linear-card p-8 sm:p-12 rounded-3xl text-center space-y-5 border-white/10 relative overflow-hidden">
+            <div className="max-w-xl mx-auto space-y-2">
+              <span className="text-xs font-mono uppercase tracking-widest text-sky-400 font-semibold">Ready to Deploy</span>
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">Let's discuss infrastructure.</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                Seeking opportunities in Cloud Engineering, DevOps, and Infrastructure Automation. Let's connect.
               </p>
             </div>
 
-            <div className="flex flex-wrap justify-center items-center gap-4 pt-2">
+            <div className="flex flex-wrap justify-center items-center gap-3 pt-2">
               <a
                 href="mailto:bhargavsah2026@gmail.com"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm bg-sky-500 text-slate-950 hover:bg-sky-400 shadow-glow-cyan transition-all"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium text-xs bg-foreground text-background hover:opacity-90 transition-opacity"
               >
-                <Mail className="w-4 h-4" />
+                <Mail className="w-3.5 h-3.5" />
                 <span>bhargavsah2026@gmail.com</span>
               </a>
 
@@ -1145,25 +1149,25 @@ export default function App() {
                 href="https://linkedin.com/in/bhargavsah"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm border border-border bg-card/80 hover:bg-muted text-foreground transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-xs border border-border bg-card/60 hover:bg-muted text-foreground transition-colors"
               >
-                <LinkedinIcon className="w-4 h-4 text-sky-400" />
-                <span>LinkedIn Profile</span>
+                <LinkedinIcon className="w-3.5 h-3.5 text-sky-400" />
+                <span>LinkedIn</span>
               </a>
 
               <a
                 href="https://github.com/bhargav59"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm border border-border bg-card/80 hover:bg-muted text-foreground transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-xs border border-border bg-card/60 hover:bg-muted text-foreground transition-colors"
               >
-                <GithubIcon className="w-4 h-4" />
-                <span>GitHub Profile</span>
+                <GithubIcon className="w-3.5 h-3.5" />
+                <span>GitHub</span>
               </a>
             </div>
 
-            <p className="text-xs text-muted-foreground pt-4">
-              Currently located in Bengaluru, Karnataka, India • Available for immediate on-site or remote engagement
+            <p className="text-[11px] text-muted-foreground pt-3">
+              Bengaluru, Karnataka, India • Immediate availability for hiring discussions
             </p>
           </div>
         </section>
@@ -1171,10 +1175,10 @@ export default function App() {
       </main>
 
       {/* FOOTER */}
-      <footer className="border-t border-border/80 bg-card/30 backdrop-blur-md py-8">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground font-mono">
+      <footer className="border-t border-border/80 py-8 text-xs font-mono text-muted-foreground">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            © 2026 Bhargav Kumar Saha. Built with React 19, Vite & Tailwind CSS.
+            © 2026 Bhargav Kumar Saha. Designed with Linear & HashiCorp craft principles.
           </div>
           <div className="flex items-center gap-4">
             <a href="https://bhargav-sah.me" className="hover:text-foreground">bhargav-sah.me</a>
@@ -1186,13 +1190,13 @@ export default function App() {
         </div>
       </footer>
 
-      {/* PDF MODAL VIEWER */}
+      {/* PDF PREVIEW MODAL */}
       {selectedCertModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-card border border-border w-full max-w-4xl h-[85vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
-            <div className="p-4 border-b border-border flex items-center justify-between bg-muted/30">
-              <div className="flex items-center gap-2 font-mono text-xs text-muted-foreground">
-                <FileText className="w-4 h-4 text-sky-400" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in">
+          <div className="bg-[#0f1115] border border-white/10 w-full max-w-4xl h-[85vh] rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+            <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between bg-black/40">
+              <div className="flex items-center gap-2 font-mono text-xs text-slate-300">
+                <FileText className="w-3.5 h-3.5 text-sky-400" />
                 <span>{selectedCertModal}</span>
               </div>
               <div className="flex items-center gap-3">
@@ -1202,17 +1206,17 @@ export default function App() {
                   className="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-400 hover:underline"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Download</span>
+                  <span>Download PDF</span>
                 </a>
                 <button
                   onClick={() => setSelectedCertModal(null)}
-                  className="p-1 rounded-md text-muted-foreground hover:text-foreground"
+                  className="p-1 rounded-md text-slate-400 hover:text-white"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
-            <div className="flex-1 bg-slate-900">
+            <div className="flex-1 bg-black">
               <iframe
                 src={`${selectedCertModal}#toolbar=0`}
                 className="w-full h-full border-none"
